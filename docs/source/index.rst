@@ -11,6 +11,19 @@ Welcome to Certora Documents Infrastructure's documentation!
    :caption: Contents:
 
 
+Example of including CVL elements
+---------------------------------
+
+.. cvlinclude:: /../../code/Voting_solution.spec
+   :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes
+   :spacing: 3
+
+
+Example of linking
+------------------
+See for example :clink:`Voting solution spec <Voting_solution.spec>`.
+
+
 
 Indices and tables
 ==================

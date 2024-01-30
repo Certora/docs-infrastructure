@@ -1,6 +1,7 @@
 """
 Sphinx extension for linking source code files, either locally or from github.
 """
+import re
 from pathlib import Path
 from typing import Any, Optional
 from urllib.parse import unquote, urlparse
@@ -30,8 +31,10 @@ class CodeLinkConfig:
         code_path = env.config.code_path
         if code_path is None:
             # Use the source dir
-            code_path = env.srcdir
-        self._code_path = Path(code_path)
+            code_path = ""
+
+        # NOTE: see documentation of relfn2path
+        self._code_path = Path(env.relfn2path(code_path)[1])
 
         # Determine repository
         try:
@@ -73,6 +76,12 @@ class CodeLinkConfig:
         return self._repo.remote().url
 
     @property
+    def repo_root(self) -> Optional[Path]:
+        if not self.has_repo:
+            return None
+        return Path(self._repo.git_dir).parent
+
+    @property
     def link_to_github(self) -> bool:
         return self._link_to_github
 
@@ -95,7 +104,7 @@ class GithubUrlsMaker:
     """
 
     def __init__(self, conf: CodeLinkConfig):
-        self._code_path = conf.code_path
+        self._repo_root = conf.repo_root
 
         if conf.code_branch is None:
             raise ValueError("Missing code branch - cannot deduce github link")
@@ -103,16 +112,21 @@ class GithubUrlsMaker:
 
         if conf.code_repo_url is None:
             raise ValueError("Missing code remote url - cannot deduce github link")
-        self._url = conf.code_repo_url
+        url = conf.code_repo_url
+        if not url.startswith("https://"):
+            # Replace ssh access with https
+            username, site, rel = re.match(r"(.*)@(.*):(.*).git", url).groups()
+            url = f"https://{site}/{rel}"
+
+        self._url = url
 
     def get_github_link(self, path: Path) -> str:
         # TODO: The building of the github link is by reverse engineering
         base = self._url
         if not base.endswith("/"):
             base += "/"
-        assert base.startswith("https://")
 
-        rel_path = path.relative_to(self._code_path)
+        rel_path = path.relative_to(self._repo_root)
         relative_parts = [
             "tree" if path.is_dir() else "blob",
             self._branch,

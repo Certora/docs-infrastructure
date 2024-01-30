@@ -18,10 +18,12 @@ logger = logging.getLogger(__name__)
 _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
     ("diff", "cvlobject"),
     ("pyobject", "cvlobject"),
+    ("language", "cvlobject"),
 ]
 
 
 # TODO: Enable replacing some lines by ellipsis
+# TODO: Hooks are currently ignored by cvldoc_parser, once fixed enable extracting them
 class CVLIncludeReader(LiteralIncludeReader):
     """
     Extends LiteralIncludeReader by allowing to access CVL elements in spec files.
@@ -69,10 +71,11 @@ class CVLIncludeReader(LiteralIncludeReader):
         cvlobjects = self.options.get("cvlobject")
 
         if cvlobjects:
+            self.options["language"] = "cvl"  # Set the language
             try:
                 # TODO: Since `parse` only accepts filenames, we reread the file.
                 # Should fix this hack once `cvldoc_parser.parse` accepts strings.
-                parsed = parse(self.filename)
+                parsed = parse([self.filename])
             except ValueError:
                 raise ValueError(f"CVLDoc failed to parse {self.filename}")
 
@@ -94,7 +97,7 @@ class CVLIncludeReader(LiteralIncludeReader):
 
             spacing = "\n" * self.options.get(self.SPACING, self._default_spacing)
             text = spacing.join(cvls.values())
-            lines = text.splitlines()
+            lines = text.splitlines(True)
         return lines
 
 

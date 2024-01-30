@@ -61,6 +61,11 @@ rst_prolog = """
 """
 
 
+# -- codelink_extension configuration ----------------------------------------
+code_path = "/../../code/"
+link_to_github = True
+
+
 # -- todo extension configuration --------------------------------------------
 # Do not show todo list unless in dev build
 todo_include_todos = tags.has(TAGS.is_dev_build)  # noqa: F821
