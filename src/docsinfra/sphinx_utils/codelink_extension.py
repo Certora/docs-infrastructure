@@ -96,11 +96,12 @@ class CodeLinkConfig:
 
 class GithubUrlsMaker:
     """
-    If the package is installed using ``pip3 install -e``, the current file is in
-    path <repo-root>/src/tutorials/sphinx_utils/codelink_extension.py. From this and the
-    current barnch, we can deduce the github url.
+    Computes the url in github of a code file.
 
-    Otherwise, we'll assume the current branch is master.
+    .. warning::
+
+        The url is computed by reverse engineering Github's urls. This is prone
+        to breaking.
     """
 
     def __init__(self, conf: CodeLinkConfig):
