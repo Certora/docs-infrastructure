@@ -111,6 +111,11 @@ todo_include_todos = tags.has(TAGS.is_dev_build)  # noqa: F821
 # See https://sphinxcontrib-spelling.readthedocs.io/en/latest/customize.html
 spelling_lang = "en_US"
 spelling_word_list_filename = {{ spelling_word_list_filename | repr }}
+
+# In sphinxcontrib.spelling 8.0.0 when spelling_ignore_contributor_names is True it
+# DOES scan git log for contributor names to add them to list of correct spelling.
+# This results in a warning when not working over a git repository.
+spelling_ignore_contributor_names = False
 {%- endif %}
 
 
