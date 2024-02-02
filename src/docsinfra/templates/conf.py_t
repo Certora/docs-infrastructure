@@ -1,0 +1,119 @@
+# Configuration file for the Sphinx documentation builder.
+# Using Certora Documentation Infrastructure.
+#
+# For the full list of built-in configuration values, see the documentation:
+# https://www.sphinx-doc.org/en/master/usage/configuration.html
+
+
+# -- docsinfra imports -------------------------------------------------------
+# NOTE: requires docsinfra installed
+from docsinfra.sphinx_utils import TAGS, CVL2Lexer
+
+# -- Project information -----------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
+
+project = {{ project | repr }}
+copyright = {{ copyright | repr }}
+author = {{ author | repr }}
+
+{%- if version %}
+
+version = {{ version | repr }}
+{%- endif %}
+{%- if release %}
+release = {{ release | repr }}
+{%- endif %}
+
+# -- General configuration ---------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
+extensions = [{% if extensions %}
+{%- for ext in extensions %}
+    "{{ ext }}",
+{%- endfor %}
+    # docsinfra extenstions
+    "docsinfra.sphinx_utils.codelink_extension",
+    "docsinfra.sphinx_utils.includecvl",
+{% endif %}]
+
+templates_path = ['{{ dot }}templates']
+exclude_patterns = [{{ exclude_patterns }}]
+
+{% if suffix != '.rst' -%}
+source_suffix = {{ suffix | repr }}
+{% endif -%}
+
+{% if root_doc != 'index' -%}
+root_doc = {{ root_doc | repr }}
+{% endif -%}
+
+{% if language -%}
+language = {{ language | repr }}
+{%- endif %}
+
+
+# -- Options for HTML output -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+html_theme = {{ html_theme | repr }}
+html_static_path = ['{{ dot }}static']
+
+# A shorter “title” for the HTML docs.
+# This is used for links in the header and in the HTML Help docs.
+# Defaults to the value of html_title.
+# html_short_title = project
+
+# The html_title also appears in the side-bar, different title to indicate dev-build.
+html_title = (
+    f"{project} - Development" if tags.has(TAGS.is_dev_build) else project  # noqa: F821
+)
+
+
+# -- themes customizations -----------------------------------------------------
+if html_theme == "furo":
+    html_theme_options = {
+        "light_logo": "logo.svg",
+        "dark_logo": "logo.svg",
+        # Disable the edit button, see:
+        # https://pradyunsg.me/furo/customisation/edit-button/#disabling-on-read-the-docs
+        "top_of_page_button": None,
+    }
+else:
+    html_logo = "_static/logo.svg"
+
+
+# -- prologue ----------------------------------------------------------------
+# A string of reStructuredText that will be included at the beginning of every source
+# file that is read.
+# Here we use the prologue to add inline cvl code and solidity code.
+rst_prolog = """
+.. role:: cvl(code)
+   :language: cvl
+
+.. role:: solidity(code)
+   :language: solidity
+"""
+
+
+# -- codelink_extension configuration ----------------------------------------
+code_path = {{ code_path | repr }}
+link_to_github = {{ link_to_github | repr }}
+
+
+{% if 'sphinx.ext.todo' in extensions -%}
+# -- Options for todo extension ----------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
+# Show todo only in dev-build
+todo_include_todos = tags.has(TAGS.is_dev_build)  # noqa: F821
+{%- endif %}
+
+
+{% if 'sphinxcontrib.spelling' in extensions -%}
+# -- spelling configuration --------------------------------------------------
+# See https://sphinxcontrib-spelling.readthedocs.io/en/latest/customize.html
+spelling_lang = "en_US"
+spelling_word_list_filename = {{ spelling_word_list_filename | repr }}
+{%- endif %}
+
+
+# -- add CVL syntax highlighting ---------------------------------------------
+def setup(sphinx):
+    sphinx.add_lexer("cvl", CVL2Lexer)
