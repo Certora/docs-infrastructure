@@ -25,6 +25,7 @@ extensions = [
     "sphinxcontrib.youtube",  # See https://sphinxcontrib-youtube.readthedocs.io
     "sphinx_design",
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
+    "sphinxcontrib.spelling",  # See https://sphinxcontrib-spelling.readthedocs.io/
 ]
 
 templates_path = ["_templates"]
@@ -37,6 +38,11 @@ exclude_patterns = []
 html_theme = "furo"
 html_static_path = ["_static"]
 html_short_title = "Certora Docs Infra"
+
+# The html_title also appears in the side-bar, different title to indicate dev-build.
+html_title = (
+    f"{project} - Development" if tags.has(TAGS.is_dev_build) else project  # noqa: F821
+)
 
 
 # -- themes customizations -----------------------------------------------------
@@ -69,6 +75,12 @@ link_to_github = True
 # -- todo extension configuration --------------------------------------------
 # Do not show todo list unless in dev build
 todo_include_todos = tags.has(TAGS.is_dev_build)  # noqa: F821
+
+
+# -- spelling configuration --------------------------------------------------
+# See https://sphinxcontrib-spelling.readthedocs.io/en/latest/customize.html
+spelling_lang = "en_US"
+spelling_word_list_filename = "spelling_wordlist.txt"
 
 
 # -- add CVL syntax highlighting ---------------------------------------------

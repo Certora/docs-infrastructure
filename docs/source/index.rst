@@ -10,6 +10,8 @@ Welcome to Certora Documents Infrastructure's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   quickstart/index
+
 
 Example of including CVL elements
 ---------------------------------
@@ -17,6 +19,10 @@ Example of including CVL elements
 .. cvlinclude:: /../../code/Voting_solution.spec
    :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes
    :spacing: 3
+
+Limitations
+"""""""""""
+* Currently there is no way to include hooks
 
 
 Example of linking
