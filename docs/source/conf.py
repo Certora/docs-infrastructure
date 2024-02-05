@@ -27,6 +27,7 @@ extensions = [
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
     "sphinxcontrib.spelling",  # See https://sphinxcontrib-spelling.readthedocs.io/
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
+    "sphinx.ext.autodoc",
 ]
 
 templates_path = ["_templates"]
@@ -68,8 +69,12 @@ rst_prolog = """
 """
 
 
+# -- autodoc -----------------------------------------------------------------
+add_module_names = False
+
+
 # -- codelink_extension configuration ----------------------------------------
-code_path = "/../../code/"
+code_path = "../../code/"
 link_to_github = True
 
 

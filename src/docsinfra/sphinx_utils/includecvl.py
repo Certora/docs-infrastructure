@@ -1,5 +1,6 @@
 """
-Adds a Sphinx directive for including CVL snippets from spec files.
+A Sphinx extension which adds a Sphinx directive for including CVL snippets from
+spec files.
 """
 from typing import Any
 
@@ -69,6 +70,7 @@ class CVLIncludeReader(LiteralIncludeReader):
         self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
         cvlobjects = self.options.get("cvlobject")
+        spacing_lines = self.options.get(self.SPACING, self._default_spacing) + 1
 
         if cvlobjects:
             self.options["language"] = "cvl"  # Set the language
@@ -95,7 +97,7 @@ class CVLIncludeReader(LiteralIncludeReader):
                         )
                     cvls[name] = cvlelement.raw()
 
-            spacing = "\n" * self.options.get(self.SPACING, self._default_spacing)
+            spacing = "\n" * spacing_lines
             text = spacing.join(cvls.values())
             lines = text.splitlines(True)
         return lines

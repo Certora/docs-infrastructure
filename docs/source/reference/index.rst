@@ -7,3 +7,7 @@ Reference guide
    :caption: Contents:
 
    scripts
+   configuration
+   codelink_extension
+   includecvl
+   code

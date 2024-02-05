@@ -21,8 +21,27 @@ Fonts
 
 Headings
 ^^^^^^^^
-See `reStructuredText Primer - Sections
+For a full list and explanation, see: `reStructuredText Primer - Sections
 <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_.
+
+.. code-block:: restructuredtext
+   :caption: Headings conventions
+
+   Section heading
+   ===============
+
+   Sub-section
+   -----------
+
+   Sub sub-section
+   ^^^^^^^^^^^^^^^
+
+   Even lower level
+   """"""""""""""""
+
+Note there are no levels assigned to particular heading characters. Sphinx deduces the
+levels in each ``.rst`` file.
+
 
 Horizontal rule
 ^^^^^^^^^^^^^^^
@@ -154,12 +173,14 @@ To reference use the ``:ref:`` directive like so:  :ref:`my-reference-label`.
 
 .. _link_to_code_file:
 
-Link to code file
-^^^^^^^^^^^^^^^^^
+Link to code file on Github
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Refer to a code file in the ``code`` folder using the ``:clink:`` role.
-The ``code`` folder is defined by the ``code_path`` variable in the ``source/conf.py``
-file.
+Link to a code file in the *code* folder using the ``:clink:`` role.
+The link will be either to Github or to local file, depending on the value
+of ``link_to_github`` variable in the ``source/conf.py`` file. The *code* folder 
+is defined by the ``code_path`` variable in the ``source/conf.py`` file.
+For complete documentation, see :ref:`codelink_extension`.
 
 .. code-block:: restructuredtext
    :caption: Syntax
@@ -178,9 +199,3 @@ For example:
    ^^^^^^^^^^^^
 
    .. include:: links_code.rst
-
-
-.. important::
-
-   Whether the links are to Github or to local files is determined by the
-   ``link_to_github`` variable in the ``source/conf.py`` file.

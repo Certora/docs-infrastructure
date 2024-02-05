@@ -1,5 +1,5 @@
 """
-Sphinx extension for linking source code files, either locally or from github.
+A Sphinx extension for linking source code files, either locally or to Github.
 """
 import re
 from pathlib import Path
@@ -32,6 +32,10 @@ class CodeLinkConfig:
         if code_path is None:
             # Use the source dir
             code_path = ""
+
+        # To make path relative to the source dir, it must be absolute
+        if code_path != "" and not code_path.startswith("/"):
+            code_path = "/" + code_path
 
         # NOTE: see documentation of relfn2path
         self._code_path = Path(env.relfn2path(code_path)[1])

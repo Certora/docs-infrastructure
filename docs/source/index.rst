@@ -21,7 +21,7 @@ Example of including CVL elements
 ---------------------------------
 
 .. cvlinclude:: /../../code/voting/Voting_solution.spec
-   :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes
+   :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes numVoted
    :spacing: 3
 
 Limitations

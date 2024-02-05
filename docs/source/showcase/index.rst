@@ -2,9 +2,9 @@
 
 .. _sphinx_showcase:
 
-############################
+****************************
 Sphinx tutorial and showcase
-############################
+****************************
 
 This chapter describes the most useful Sphinx directives and roles.
 
