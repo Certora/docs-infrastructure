@@ -5,6 +5,12 @@
 {{ project }}
 {{ project_underline }}
 
+.. The main table of contents, possible options:
+   :maxdepth: integer - determines how many nested levels to show in the table
+   :numbered: integer - add numbering for parts, the number deterrmines how many
+   nested levels will be numbered
+   See https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-toctree
+
 .. toctree::
    :maxdepth: {{ mastertocmaxdepth }}
    :caption: Contents:
