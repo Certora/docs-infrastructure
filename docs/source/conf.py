@@ -26,6 +26,7 @@ extensions = [
     "sphinx_design",
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
     "sphinxcontrib.spelling",  # See https://sphinxcontrib-spelling.readthedocs.io/
+    "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
 ]
 
 templates_path = ["_templates"]
@@ -80,7 +81,10 @@ todo_include_todos = tags.has(TAGS.is_dev_build)  # noqa: F821
 # -- spelling configuration --------------------------------------------------
 # See https://sphinxcontrib-spelling.readthedocs.io/en/latest/customize.html
 spelling_lang = "en_US"
-spelling_word_list_filename = "spelling_wordlist.txt"
+spelling_word_list_filename = [
+    "spelling_wordlist.txt",
+    "packages_spelling_wordlist.txt",
+]
 
 
 # -- add CVL syntax highlighting ---------------------------------------------
