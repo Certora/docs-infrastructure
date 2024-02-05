@@ -13,9 +13,9 @@ from sphinx.cmd.quickstart import DEFAULTS, generate
 from ..sphinx_utils.definitions.themes import THEMES
 
 
-def get_displaytutorials_parser() -> ArgumentParser:
+def get_quickstart_parser() -> ArgumentParser:
     """
-    Returns the :class:`argparse.ArgumentParser` for ``DisplayTutorials``.
+    Returns the :class:`argparse.ArgumentParser` for :class:`.Quickstart`.
     """
     parser = ArgumentParser(
         description="Quickly start a Certora document project",
@@ -43,7 +43,12 @@ def get_displaytutorials_parser() -> ArgumentParser:
         'Sphinx supports a notion of a "version" and a "release" for the project.',
     )
     versioning.add_argument(
-        "-v", metavar="VERSION", dest="version", default="", help="version of project"
+        "-v",
+        "--version",
+        metavar="VERSION",
+        dest="version",
+        default="",
+        help="version of project",
     )
     versioning.add_argument(
         "-r", "--release", metavar="RELEASE", dest="release", help="release of project"
@@ -64,7 +69,7 @@ def get_displaytutorials_parser() -> ArgumentParser:
     )
 
     codeing = parser.add_argument_group(
-        "Code links", "Determine location to serch for code and link style."
+        "Code links", "Determine location to search for code and link style."
     )
     codeing.add_argument(
         "--code",
@@ -168,10 +173,12 @@ class Quickstart:
     def _copy_assets(self):
         source = self._path / "source"
 
-        # Copy the logo to `_static`
-        logo_path = self._ASSETS / "logo.svg"
-        static_path = source / f"{self._config.dot}static"
-        copyfile(logo_path, static_path / "logo.svg")
+        # Copy the logo images to `_static` (the ".png" is needed for latex docs)
+        for ext in [".svg", ".png"]:
+            logo = "logo" + ext
+            logo_path = self._ASSETS / logo
+            static_path = source / f"{self._config.dot}static"
+            copyfile(logo_path, static_path / logo)
 
         # Copy the spelling_wordlist.txt
         spell_path = self._ASSETS / "spelling_wordlist.txt"
@@ -187,7 +194,7 @@ class Quickstart:
 
     @classmethod
     def from_cli_args(cls) -> "Quickstart":
-        parser = get_displaytutorials_parser()
+        parser = get_quickstart_parser()
         args = parser.parse_args()
         config = QuickstartConfig.from_args(args)
         return cls(config)

@@ -8,15 +8,19 @@ Welcome to Certora Documents Infrastructure's documentation!
 
 .. toctree::
    :maxdepth: 2
+   :numbered: 2
    :caption: Contents:
 
    quickstart/index
+   output/pdf
+   showcase/index
+   reference/index
 
 
 Example of including CVL elements
 ---------------------------------
 
-.. cvlinclude:: /../../code/Voting_solution.spec
+.. cvlinclude:: /../../code/voting/Voting_solution.spec
    :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes
    :spacing: 3
 
@@ -27,7 +31,7 @@ Limitations
 
 Example of linking
 ------------------
-See for example :clink:`Voting solution spec <Voting_solution.spec>`.
+See for example :clink:`Voting solution spec <voting/Voting_solution.spec>`.
 
 
 
