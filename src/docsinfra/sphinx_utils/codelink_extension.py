@@ -50,6 +50,7 @@ class CodeLinkConfig:
 
         self._link_to_github = env.config.link_to_github
         logger.warning(f"Repository is {self._repo}")
+        logger.warning(f"refs: {self._repo.references}")
 
     @property
     def code_path(self) -> Path:
@@ -90,7 +91,6 @@ class CodeLinkConfig:
     def repo_root(self) -> Optional[Path]:
         if not self.has_repo:
             return None
-        logger.warning(f"code branch {self.code_branch} url {self.code_repo_url}")
         logger.warning(f"working dir {self._repo.working_dir}")
         return Path(self._repo.working_dir)
 
