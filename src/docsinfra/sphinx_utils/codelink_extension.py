@@ -51,6 +51,8 @@ class CodeLinkConfig:
         self._link_to_github = env.config.link_to_github
         logger.warning(f"Repository is {self._repo}")
         logger.warning(f"refs: {self._repo.references}")
+        logger.warning(f"commits: {[ref.commit for ref in self._repo.references]}")
+        logger.warning(f"head: {self._repo.head} {self._repo.head.commit}")
 
     @property
     def code_path(self) -> Path:
