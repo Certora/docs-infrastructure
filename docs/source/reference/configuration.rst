@@ -2,7 +2,7 @@ Configuration
 =============
 
 The configuration is determined by the ``/source/conf.py`` file.
-See `Sphinx - Configuration` for a full list of configurable properties.
+See `Sphinx - Configuration`_ for a full list of configurable properties.
 
 In addition, various extensions and themes have their own configurations possible,
 for example:
