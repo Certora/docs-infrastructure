@@ -117,11 +117,16 @@ class GithubUrlsMaker:
 
         if conf.code_repo_url is None:
             raise ValueError("Missing code remote url - cannot deduce github link")
+
         url = conf.code_repo_url
         if not url.startswith("https://"):
             # Replace ssh access with https
             username, site, rel = re.match(r"(.*)@(.*):(.*).git", url).groups()
             url = f"https://{site}/{rel}"
+
+        if url.endswith(".git"):
+            # Remove ".git" ending
+            url = url[: -len(".git")]
 
         self._url = url
 
