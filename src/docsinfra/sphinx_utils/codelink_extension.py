@@ -71,10 +71,12 @@ class CodeLinkConfig:
                     for ref in self._repo.references
                     if ref.commit == self._repo.head.commit
                 )
+                logger.warning(f"branch is {reference.remote_head}")
                 return reference.remote_head
             except StopIteration:
                 logger.warning(__("detached head - cannot deduce branch"))
                 return None
+        logger.warning(f"branch is {self._repo.active_branch.name}")
         return self._repo.active_branch.name
 
     @property
