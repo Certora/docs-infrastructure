@@ -61,7 +61,8 @@ class CodeLinkConfig:
 
     @property
     def code_branch(self) -> Optional[str]:
-        if self.has_repo is None:
+        if not self.has_repo:
+            logger.warning("No repo!")
             return None
         if self._repo.head.is_detached:
             # We need to deduce the branch
@@ -89,6 +90,7 @@ class CodeLinkConfig:
     def repo_root(self) -> Optional[Path]:
         if not self.has_repo:
             return None
+        logger.warning(f"working dir {self._repo.working_dir}")
         return Path(self._repo.working_dir)
 
     @property
@@ -144,6 +146,7 @@ class GithubUrlsMaker:
         if not base.endswith("/"):
             base += "/"
 
+        logger.warning(f"path {path}")
         rel_path = path.relative_to(self._repo_root)
         relative_parts = [
             "tree" if path.is_dir() else "blob",
