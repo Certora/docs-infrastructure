@@ -83,7 +83,7 @@ class CodeLinkConfig:
     def repo_root(self) -> Optional[Path]:
         if not self.has_repo:
             return None
-        return Path(self._repo.git_dir).parent
+        return Path(self._repo.working_dir)
 
     @property
     def link_to_github(self) -> bool:
