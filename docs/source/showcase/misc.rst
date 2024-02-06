@@ -3,57 +3,7 @@
 Miscellaneous
 =============
 
-.. _howto_indexing:
-
-Indexing
---------
-To add terms to the :ref:`genindex`, place an appropriate ``.. index`` directive before
-the part you wish to index. See `Sphinx - index directive`_ for a comprehensive
-description of this directive, here are some simple examples.
-
-Simple indexing
-^^^^^^^^^^^^^^^
-The following will create three index entries.
-
-.. code-block:: restructuredtext
-
-   .. index:: municipality, town, city
-
-Adding single values
-^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: restructuredtext
-
-   .. index::
-      single: propositional logic
-      single: logic; propositional
-
-This will create two index entries, the first as "propositional logic" and the second
-will be a sub-index under "logic".
-
-Adding labels to indexes
-^^^^^^^^^^^^^^^^^^^^^^^^
-Use the ``:name:`` option for adding a label that can be used with ``:ref:``. For example:
-
-.. code-block:: restructuredtext
-
-   .. index:: formal
-      :name: intro_to_formal
-
-Inline indexing
-^^^^^^^^^^^^^^^
-You can add index entries inline. Here is and example from
-`Sphinx - index directive`_:
-
-.. code-block:: restructuredtext
-
-   This is a normal reST :index:`paragraph` that contains several
-   :index:`index entries <pair: index; entry>`.
-
-
-.. _Sphinx - index directive:
-   https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-index
-
+.. index:: table
 
 Tables
 ------

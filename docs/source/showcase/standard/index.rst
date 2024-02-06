@@ -82,8 +82,10 @@ Numbered lists
 
    .. include:: lists_numbered.rst
 
-Definition lists
-^^^^^^^^^^^^^^^^
+.. _howto_definition_list:
+
+Definition list
+^^^^^^^^^^^^^^^
 
 .. literalinclude:: lists_definitions.rst
    :language: restructuredtext

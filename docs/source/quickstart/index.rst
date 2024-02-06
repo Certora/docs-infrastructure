@@ -36,6 +36,7 @@ This will create two folders inside ``PROJECT_DIR``:
 
 See :ref:`certora_doc_quickstart` for more information.
 
+.. _build_html:
 
 Build html
 ----------

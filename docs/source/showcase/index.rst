@@ -20,10 +20,11 @@ For additional information see:
 
    standard/index
    code_blocks/index
-   latex
+   indexing_glossary
+   comments_todos
    admonitions/index
    panels/index
-   comments_todos
+   latex
    misc
 
 
@@ -31,8 +32,7 @@ For additional information see:
 
    Missing topics to add:
 
-   * table ot contents (mainly the ``hidden`` option), link to it from the
-     :ref:`sec_development_guide`
+   * table ot contents (mainly the ``hidden`` option)
    * tabs (from sphinx-design)
-   * footnotes ?
+   * footnotes
    * ``.. rubric``,  ``.. centered`` and ``.. hlist``

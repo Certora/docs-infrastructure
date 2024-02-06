@@ -27,6 +27,8 @@ automatically by the :ref:`certora_doc_quickstart`.
 Options
 ^^^^^^^
 
+.. _code_path_variable:
+
 ``code_path``
    A string, the path to the *code folder* relative to the source directory. 
    If empty the source directory will be used. This will be the base path for

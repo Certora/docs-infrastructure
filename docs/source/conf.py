@@ -31,7 +31,9 @@ extensions = [
 ]
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = [
+    "showcase/glossary_example.rst",  # Prevent warning on duplicate term description
+]
 
 
 # -- Options for HTML output -------------------------------------------------

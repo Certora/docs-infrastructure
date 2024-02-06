@@ -71,27 +71,48 @@ Use the following options to create a smaller document with the Certora logo.
 
 .. code-block:: bash
 
-   sphinx-build -M latexpdf docs/source/ docs/build/ \
+   sphinx-build -M latexpdf docs/source/ docs/build/fullpdf \
+     -D latex_elements.papersize=a4paper \
+     -D latex_logo=_static/logo.png \
+     -D latex_toplevel_sectioning=section \
+     -D latex_theme=howto \
+
+Here is the output
+:download:`Certora documents infrastructure
+</_static/pdfs/certoradocumentsinfrastructure.pdf>` (this used :ref:`dev_build`).
+
+
+Building partial document
+-------------------------
+To create a pdf of only a part of the documentation:
+
+#. Change the source dir to the desired folder with ``index.rst`` file, e.g.
+   ``docs/source/showcase``
+#. Provide the path to the folder containing the relevant ``conf.py`` file
+   using the ``-c`` option,
+   e.g. to use the standard config file: ``-c docs/source/``
+#. Update the :ref:`code_path_variable` variable to be relative to the new
+   source directory, e.g. ``-D code_path=/../../../code/``
+#. Optionally, modify the title and html title, e.g. ``-D project="Sphinx showcase"``
+   and ``-D html_title="Sphinx showcase"``
+
+For example, to create a pdf only from the :ref:`sphinx_showcase` chapter:
+
+.. code-block:: bash
+   
+   sphinx-build -M latexpdf docs/source/showcase docs/build/partpdf \
+     -c docs/source/ \
+     -D code_path=/../../../code \
+     -D project="Sphinx showcase" \
+     -D html_title="Sphinx showcase" \
      -D latex_elements.papersize=a4paper \
      -D latex_logo=_static/logo.png \
      -D latex_toplevel_sectioning=section \
      -D latex_theme=howto
 
-
-Building partial document
--------------------------
-If you wish to create a pdf of only a part of the documentation, you need only
-modify the source dir, and update the ``code_path`` option to be relative to the new
-source. For example, to create a pdf only from the :ref:`sphinx_showcase`:
-
-.. code-block:: bash
-   
-   sphinx-build -M latexpdf docs/source/showcase docs/build/ \
-     -D latex_elements.papersize=a4paper \
-     -D latex_logo=_static/logo.png \
-     -D latex_toplevel_sectioning=section \
-     -D latex_theme=howto \
-     -D code_path=/../../../code
+Here is the output
+:download:`Certora documents infrastructure
+</_static/pdfs/sphinxshowcase.pdf>` (also used :ref:`dev_build`).
 
 
 .. Links:
