@@ -64,7 +64,6 @@ class CodeLinkConfig:
         if self._repo.head.is_detached:
             # We need to deduce the branch
             try:
-                logger.warning("Detached head")
                 reference = next(
                     ref
                     for ref in self._repo.references
@@ -72,6 +71,7 @@ class CodeLinkConfig:
                 )
                 return reference.remote_head
             except StopIteration:
+                logger.warning(__("detached head - cannot deduce branch"))
                 return None
         return self._repo.active_branch.name
 
@@ -114,12 +114,10 @@ class GithubUrlsMaker:
         self._repo_root = conf.repo_root
 
         if conf.code_branch is None:
-            logger.warning("Missing code branch - cannot deduce github link")
             raise ValueError("Missing code branch - cannot deduce github link")
         self._branch = conf.code_branch
 
         if conf.code_repo_url is None:
-            logger.warning("Missing code remote url - cannot deduce github link")
             raise ValueError("Missing code remote url - cannot deduce github link")
 
         url = conf.code_repo_url
