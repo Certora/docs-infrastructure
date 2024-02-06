@@ -44,6 +44,7 @@ class CodeLinkConfig:
         try:
             self._repo = Repo(self._code_path, search_parent_directories=True)
         except InvalidGitRepositoryError:
+            logger.warning(f"No Repo in {self._code_path}")
             self._repo = None
 
         self._link_to_github = env.config.link_to_github
@@ -63,6 +64,7 @@ class CodeLinkConfig:
         if self._repo.head.is_detached:
             # We need to deduce the branch
             try:
+                logger.warning("Detached head")
                 reference = next(
                     ref
                     for ref in self._repo.references
@@ -112,10 +114,12 @@ class GithubUrlsMaker:
         self._repo_root = conf.repo_root
 
         if conf.code_branch is None:
+            logger.warning("Missing code branch - cannot deduce github link")
             raise ValueError("Missing code branch - cannot deduce github link")
         self._branch = conf.code_branch
 
         if conf.code_repo_url is None:
+            logger.warning("Missing code remote url - cannot deduce github link")
             raise ValueError("Missing code remote url - cannot deduce github link")
 
         url = conf.code_repo_url
