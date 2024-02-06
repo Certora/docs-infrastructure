@@ -75,7 +75,7 @@ class CodeLinkConfig:
                 logger.warning(f"branch is {reference.remote_head}")
                 return reference.remote_head
             except StopIteration:
-                logger.warning(__("detached head - cannot deduce branch"))
+                logger.warning("detached head - cannot deduce branch")
                 return None
         logger.warning(f"branch is {self._repo.active_branch.name}")
         return self._repo.active_branch.name
