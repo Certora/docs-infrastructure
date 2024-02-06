@@ -72,7 +72,7 @@ class CodeLinkConfig:
 
             def has_remote_head(ref):
                 try:
-                    return reference.remote_head is not None
+                    return ref.remote_head is not None
                 except ValueError:
                     return False
 
