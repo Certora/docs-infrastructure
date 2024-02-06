@@ -118,6 +118,7 @@ class GithubUrlsMaker:
 
     def __init__(self, conf: CodeLinkConfig):
         self._repo_root = conf.repo_root
+        logger.warning(f"code branch {conf.code_branch} url {conf.code_repo_url}")
 
         if conf.code_branch is None:
             logger.warning("missing code branch")
@@ -231,4 +232,4 @@ class TutorialsCodeLink(XRefRole):
 def setup(app: Sphinx) -> dict[str, Any]:
     app.add_role(_ROLE_NAME, TutorialsCodeLink())
     CodeLinkConfig.add_config_values(app)
-    return {"version": "0.1", "parallel_read_safe": True}
+    return {"version": "0.1", "parallel_read_safe": False}
