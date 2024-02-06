@@ -97,6 +97,18 @@ class CVLIncludeReader(LiteralIncludeReader):
                         )
                     cvls[name] = cvlelement.raw()
 
+            # Warn about missing elements
+            for name, element in cvls.items():
+                if element is None:
+                    logger.warning(
+                        __("failed to find CVL element matching %s in %s")
+                        % (name, self.filename),
+                        location=location,
+                    )
+
+            # Remove missing elements
+            cvls = {name: el for name, el in cvls.items() if el is not None}
+
             spacing = "\n" * spacing_lines
             text = spacing.join(cvls.values())
             lines = text.splitlines(True)
