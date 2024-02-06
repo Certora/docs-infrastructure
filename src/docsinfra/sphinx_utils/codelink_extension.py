@@ -90,6 +90,7 @@ class CodeLinkConfig:
     def repo_root(self) -> Optional[Path]:
         if not self.has_repo:
             return None
+        logger.warning(f"code branch {self.code_branch} url {self.code_repo_url}")
         logger.warning(f"working dir {self._repo.working_dir}")
         return Path(self._repo.working_dir)
 
@@ -118,7 +119,6 @@ class GithubUrlsMaker:
 
     def __init__(self, conf: CodeLinkConfig):
         self._repo_root = conf.repo_root
-        logger.warning(f"code branch {conf.code_branch} url {conf.code_repo_url}")
 
         if conf.code_branch is None:
             logger.warning("missing code branch")
