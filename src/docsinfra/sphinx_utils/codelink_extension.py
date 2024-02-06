@@ -44,6 +44,7 @@ class CodeLinkConfig:
         try:
             self._repo = Repo(self._code_path, search_parent_directories=True)
         except InvalidGitRepositoryError:
+            logger.warning(f"No Repo in {self._code_path}")
             self._repo = None
 
         self._link_to_github = env.config.link_to_github
@@ -70,6 +71,7 @@ class CodeLinkConfig:
                 )
                 return reference.remote_head
             except StopIteration:
+                logger.warning(__("detached head - cannot deduce branch"))
                 return None
         return self._repo.active_branch.name
 
