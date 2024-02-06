@@ -39,20 +39,20 @@ class CodeLinkConfig:
 
         # NOTE: see documentation of relfn2path
         self._code_path = Path(env.relfn2path(code_path)[1])
-        logger.warning(f"Code path is {self._code_path}")
+        logger.info(f"Code path is {self._code_path}")
 
         # Determine repository
         try:
             self._repo = Repo(self._code_path, search_parent_directories=True)
         except InvalidGitRepositoryError:
-            logger.warning(f"No Repo in {self._code_path}")
+            logger.info(f"No Repo in {self._code_path}")
             self._repo = None
 
         self._link_to_github = env.config.link_to_github
-        logger.warning(f"Repository is {self._repo}")
-        logger.warning(f"refs: {self._repo.references}")
-        logger.warning(f"commits: {[ref.commit for ref in self._repo.references]}")
-        logger.warning(f"head: {self._repo.head} {self._repo.head.commit}")
+        logger.info(f"Repository is {self._repo}")
+        logger.info(f"refs: {self._repo.references}")
+        logger.info(f"commits: {[ref.commit for ref in self._repo.references]}")
+        logger.info(f"head: {self._repo.head} {self._repo.head.commit}")
 
     @property
     def code_path(self) -> Path:
@@ -65,22 +65,31 @@ class CodeLinkConfig:
     @property
     def code_branch(self) -> Optional[str]:
         if not self.has_repo:
-            logger.warning("No repo!")
+            logger.info("No repo!")
             return None
         if self._repo.head.is_detached:
             # We need to deduce the branch
+
+            def has_remote_head(ref):
+                try:
+                    return reference.remote_head is not None
+                except ValueError:
+                    return False
+
             try:
                 reference = next(
                     ref
                     for ref in self._repo.references
                     if ref.commit == self._repo.head.commit
+                    and has_remote_head(ref)
+                    and ref.remote_head != "HEAD"
                 )
-                logger.warning(f"branch is {reference.remote_head}")
+                logger.info(f"branch is {reference.remote_head}")
                 return reference.remote_head
             except StopIteration:
-                logger.warning("detached head - cannot deduce branch")
+                logger.info("detached head - cannot deduce branch")
                 return None
-        logger.warning(f"branch is {self._repo.active_branch.name}")
+        logger.info(f"branch is {self._repo.active_branch.name}")
         return self._repo.active_branch.name
 
     @property
@@ -93,7 +102,7 @@ class CodeLinkConfig:
     def repo_root(self) -> Optional[Path]:
         if not self.has_repo:
             return None
-        logger.warning(f"working dir {self._repo.working_dir}")
+        logger.info(f"working dir {self._repo.working_dir}")
         return Path(self._repo.working_dir)
 
     @property
@@ -123,12 +132,12 @@ class GithubUrlsMaker:
         self._repo_root = conf.repo_root
 
         if conf.code_branch is None:
-            logger.warning("missing code branch")
+            logger.info("missing code branch")
             raise ValueError("Missing code branch - cannot deduce github link")
         self._branch = conf.code_branch
 
         if conf.code_repo_url is None:
-            logger.warning("missing remote url")
+            logger.info("missing remote url")
             raise ValueError("Missing code remote url - cannot deduce github link")
 
         url = conf.code_repo_url
@@ -149,7 +158,7 @@ class GithubUrlsMaker:
         if not base.endswith("/"):
             base += "/"
 
-        logger.warning(f"path {path}")
+        logger.info(f"path {path}")
         rel_path = path.relative_to(self._repo_root)
         relative_parts = [
             "tree" if path.is_dir() else "blob",
