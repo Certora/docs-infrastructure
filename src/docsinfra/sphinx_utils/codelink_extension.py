@@ -27,83 +27,40 @@ class CodeLinkConfig:
     """
 
     def __init__(self, env: BuildEnvironment):
-        # Determine code path
-        code_path = env.config.code_path
-        if code_path is None:
-            # Use the source dir
-            code_path = ""
-
-        # To make path relative to the source dir, it must be absolute
-        if code_path != "" and not code_path.startswith("/"):
-            code_path = "/" + code_path
-
-        # NOTE: see documentation of relfn2path
-        self._code_path = Path(env.relfn2path(code_path)[1])
-        logger.info(f"Code path is {self._code_path}")
-
-        # Determine repository
-        try:
-            self._repo = Repo(self._code_path, search_parent_directories=True)
-        except InvalidGitRepositoryError:
-            logger.info(f"No Repo in {self._code_path}")
-            self._repo = None
-
+        self._env = env
         self._link_to_github = env.config.link_to_github
-        logger.info(f"Repository is {self._repo}")
-        logger.info(f"refs: {self._repo.references}")
-        logger.info(f"commits: {[ref.commit for ref in self._repo.references]}")
-        logger.info(f"head: {self._repo.head} {self._repo.head.commit}")
+        self._code_path_override = env.config.code_path_override
+
+        if self.is_codepath_overridden:
+            # Calculate the codepath relative to the source dir
+            # To use env.relfn2path we need an absolute path
+            codepath = self._code_path_override
+            if not codepath.startswith("/"):
+                codepath = "/" + codepath
+            self._code_path_override = Path(env.relfn2path(codepath)[1]).absolute()
 
     @property
-    def code_path(self) -> Path:
-        return self._code_path
+    def is_codepath_overridden(self):
+        return self._code_path_override is not None and self._code_path_override != ""
 
-    @property
-    def has_repo(self) -> bool:
-        return self._repo is not None
+    def get_abs_path(self, path: str) -> Path:
+        """
+        Returns an absolute path to the file. If the path is relative, or there is
+        no code-path override, we use ``BuildEnvironment.relfn2path`` to compute the
+        path. Otherwise, the path is considered sa relative to the overridden code path.
 
-    @property
-    def code_branch(self) -> Optional[str]:
-        if not self.has_repo:
-            logger.info("No repo!")
-            return None
-        if self._repo.head.is_detached:
-            # We need to deduce the branch
+        Examples:
 
-            def has_remote_head(ref):
-                try:
-                    return ref.remote_head is not None
-                except ValueError:
-                    return False
+        >>> codelinkconfig._code_path_override
+        PosixPath('/home/shoham/dev/docs-infrastructure/code')
+        >>> codelinkconfig.get_abs_path('voting/Voting_solution.spec')
+        PosixPath('/home/shoham/dev/docs-infrastructure/docs/source/voting/Voting_solution.spec')
+        """
+        pathobj = Path(path)
+        if (not self.is_codepath_overridden) or (not pathobj.is_absolute()):
+            return Path(self._env.relfn2path(path)[1]).absolute()
 
-            try:
-                reference = next(
-                    ref
-                    for ref in self._repo.references
-                    if ref.commit == self._repo.head.commit
-                    and has_remote_head(ref)
-                    and ref.remote_head != "HEAD"
-                )
-                logger.info(f"branch is {reference.remote_head}")
-                return reference.remote_head
-            except StopIteration:
-                logger.info("detached head - cannot deduce branch")
-                return None
-        logger.info(f"branch is {self._repo.active_branch.name}")
-        return self._repo.active_branch.name
-
-    @property
-    def code_repo_url(self) -> Optional[str]:
-        if not self.has_repo:
-            return None
-        return self._repo.remote().url
-
-    @property
-    def repo_root(self) -> Optional[Path]:
-        if not self.has_repo:
-            return None
-        logger.info(f"working dir {self._repo.working_dir}")
-        return Path(self._repo.working_dir)
+        return self._code_path_override / (pathobj.relative_to(pathobj.root))
 
     @property
     def link_to_github(self) -> bool:
@@ -114,33 +71,48 @@ class CodeLinkConfig:
         """
         Add the config values neede for :class:`.CodeLink`.
         """
-        app.add_config_value("code_path", None, "env")
+        app.add_config_value("code_path_override", None, "env")
         app.add_config_value("link_to_github", True, "env")
 
 
 class GithubUrlsMaker:
     """
-    Computes the url in github of a code file.
+    Computes the url in Github of a given file, returns None if the computation
+    failed for any reason.
 
     .. warning::
 
         The url is computed by reverse engineering Github's urls. This is prone
         to breaking.
+
+    .. todo:: Cache repositories and their url's.
     """
 
-    def __init__(self, conf: CodeLinkConfig):
-        self._repo_root = conf.repo_root
+    def get_repo(self, path: Path) -> Optional[Repo]:
+        """
+        :return: the path's repository
+        """
+        try:
+            return Repo(path, search_parent_directories=True)
+        except InvalidGitRepositoryError:
+            return None
 
-        if conf.code_branch is None:
-            logger.info("missing code branch")
-            raise ValueError("Missing code branch - cannot deduce github link")
-        self._branch = conf.code_branch
+    def is_github_url(self, url: str) -> bool:
+        """
+        Returns whether the given url is in Github.com.
+        """
+        return re.search(r"\bgithub\.com\b", url) is not None
 
-        if conf.code_repo_url is None:
-            logger.info("missing remote url")
-            raise ValueError("Missing code remote url - cannot deduce github link")
+    def normalize_url(self, url: str) -> str:
+        """
+        Convert remote repo urls to ``https://`` urls. For example:
 
-        url = conf.code_repo_url
+        >>> GithubUrlsMaker().normalize_url('git@github.com:Certora/docs-infrastructure.git')
+        'https://github.com/Certora/docs-infrastructure/'
+
+        >>> GithubUrlsMaker().normalize_url('https://github.com/Certora/Examples.git')
+        'https://github.com/Certora/Examples/'
+        """
         if not url.startswith("https://"):
             # Replace ssh access with https
             username, site, rel = re.match(r"(.*)@(.*):(.*).git", url).groups()
@@ -150,23 +122,37 @@ class GithubUrlsMaker:
             # Remove ".git" ending
             url = url[: -len(".git")]
 
-        self._url = url
+        if not url.endswith("/"):
+            url += "/"
+        return url
 
-    def get_github_link(self, path: Path) -> str:
-        # TODO: The building of the github link is by reverse engineering
-        base = self._url
-        if not base.endswith("/"):
-            base += "/"
+    def __call__(self, path: Path) -> Optional[str]:
+        if not path.exists():
+            logger.warning(f"missing {path} - cannot create Github url")
+            return None
 
-        logger.info(f"path {path}")
-        rel_path = path.relative_to(self._repo_root)
+        repo = self.get_repo(path)
+        if repo is None:
+            logger.warning(f"no git repo found in {path} - cannot create Github url")
+            return None
+
+        url = repo.remote().url
+        if not self.is_github_url(url):
+            logger.warning(f"repo {repo} is not on Github - cannot create Github url")
+            return None
+
+        url = self.normalize_url(url)
+        rel_path = path.relative_to(repo.working_dir)
         relative_parts = [
             "tree" if path.is_dir() else "blob",
-            self._branch,
+            repo.head.commit.hexsha,  # Better than using branch
             str(rel_path),
         ]
         relative = "/".join(relative_parts)
-        return base + relative
+        return url + relative
+
+
+GITHUB_URL_MAKER = GithubUrlsMaker()
 
 
 class TutorialsCodeLink(XRefRole):
@@ -190,21 +176,20 @@ class TutorialsCodeLink(XRefRole):
         tuple.
         """
         config = CodeLinkConfig(env)
-        path = config.code_path / target
-        url = str(path.as_uri())
+        path = config.get_abs_path(target)
+        path_link = str(path.as_uri())
 
         if config.link_to_github:
-            try:
-                url = GithubUrlsMaker(config).get_github_link(path)
-            except ValueError:
-                logger.warning(
-                    __(
-                        "could not create GitHub link for %s, falling back to local link"
-                    )
-                    % target,
-                )
+            url = GITHUB_URL_MAKER(path)
+            if url is not None:
+                return title, url
 
-        return title, url
+            logger.warning(
+                __("could not create GitHub link for %s, falling back to local link")
+                % target,
+            )
+
+        return title, path_link
 
     def result_nodes(
         self,
