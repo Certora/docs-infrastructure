@@ -79,13 +79,13 @@ Example
 
 .. code-block:: restructuredtext
    
-   .. cvlinclude:: /../../code/voting/Voting_solution.spec
+   .. cvlinclude:: ../../../../code/voting/Voting_solution.spec
       :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
       :caption: Voting rules
 
 *Rendered as:*
 
-.. cvlinclude:: /../../code/voting/Voting_solution.spec
+.. cvlinclude:: ../../../../code/voting/Voting_solution.spec
    :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
    :caption: Voting rules
 
@@ -116,14 +116,14 @@ For example:
 
 .. code-block:: restructuredtext
 
-   .. literalinclude:: /../../code/voting/Voting.sol
+   .. literalinclude:: ../../../../code/voting/Voting.sol
       :language: solidity
       :lines: 4-
       :emphasize-lines: 4-6
 
 *Rendered as:*
       
-.. literalinclude:: /../../code/voting/Voting.sol
+.. literalinclude:: ../../../../code/voting/Voting.sol
    :language: solidity
    :lines: 4-
    :emphasize-lines: 4-6
