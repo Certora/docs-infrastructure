@@ -178,16 +178,18 @@ To reference use the ``:ref:`` directive like so:  :ref:`my-reference-label`.
 Link to code file on Github
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Link to a code file in the *code* folder using the ``:clink:`` role.
+Link to a code file using the ``:clink:`` role.
 The link will be either to Github or to local file, depending on the value
-of ``link_to_github`` variable in the ``source/conf.py`` file. The *code* folder 
-is defined by the ``code_path`` variable in the ``source/conf.py`` file.
+of ``link_to_github`` variable in the ``source/conf.py`` file.
+Absolute paths will be considered as relative to the *absolute code path*
+-- see :ref:`code_path_variable`.
 For complete documentation, see :ref:`codelink_extension`.
 
 .. code-block:: restructuredtext
    :caption: Syntax
 
-   :clink:`Optional name <relative-path-from-code-dir>`
+   :clink:`Optional name <relative-path-to-code-file>`
+   :clink:`Optional name <absolute path relative to absolute code path>`
 
 For example:
 

@@ -69,17 +69,12 @@ Preferred format
 ----------------
 Use the following options to create a smaller document with the Certora logo.
 
-.. code-block:: bash
-
-   sphinx-build -M latexpdf docs/source/ docs/build/fullpdf \
-     -D latex_elements.papersize=a4paper \
-     -D latex_logo=_static/logo.png \
-     -D latex_toplevel_sectioning=section \
-     -D latex_theme=howto \
+.. literalinclude:: create_pdfs.sh
+   :language: bash
+   :lines: 1-7
 
 Here is the output
-:download:`Certora documents infrastructure
-</_static/pdfs/certoradocumentsinfrastructure.pdf>` (this used :ref:`dev_build`).
+:download:`Certora documents infrastructure </_static/pdfs/certoradocumentsinfrastructure.pdf>`.
 
 
 Building partial document
@@ -98,21 +93,12 @@ To create a pdf of only a part of the documentation:
 
 For example, to create a pdf only from the :ref:`sphinx_showcase` chapter:
 
-.. code-block:: bash
-   
-   sphinx-build -M latexpdf docs/source/showcase docs/build/partpdf \
-     -c docs/source/ \
-     -D code_path=/../../../code \
-     -D project="Sphinx showcase" \
-     -D html_title="Sphinx showcase" \
-     -D latex_elements.papersize=a4paper \
-     -D latex_logo=_static/logo.png \
-     -D latex_toplevel_sectioning=section \
-     -D latex_theme=howto
+.. literalinclude:: create_pdfs.sh
+   :language: bash
+   :lines: 9-19
 
 Here is the output
-:download:`Certora documents infrastructure
-</_static/pdfs/sphinxshowcase.pdf>` (also used :ref:`dev_build`).
+:download:`Sphinx showcase </_static/pdfs/sphinxshowcase.pdf>`.
 
 
 .. Links:

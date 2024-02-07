@@ -29,14 +29,16 @@ Options
 
 .. _code_path_variable:
 
-``code_path``
-   A string, the path to the *code folder* relative to the source directory. 
-   If empty the source directory will be used. This will be the base path for
-   code links.
+``code_path_override``
+   Optional string, determines the :index:`absolute code path`.
+   Absolute paths in ``:clink:`` are considered as relative to the *absolute code path*.
+   By default, this path is the source directory (e.g. ``docs/source/``).
+   This options changes the absolute code path to the one given in ``code_path_override``.
+   Note ``code_path_override`` must be relative to the source directory.
 
 ``link_to_github``
    Boolean, if true the links will be to the Github remote repository (deduced from
-   the repository of the ``code_path``). Otherwise will link to local files.
+   the repository of the path given in ``:clink:``). Otherwise will link to local files.
 
 
 Usage
@@ -47,10 +49,10 @@ Syntax
 
 .. code-block:: restructuredtext
 
-   * :clink:`Optional name <path relative to code_path>` - in this case "Optional name"
-     will be displayed
-   * :clink:`path-relative-to-code_path` - in this case the "path-relative-to-code_path"
-     will be the link's text
+   * :clink:`Optional name <path-to-code>` - in this case "Optional name"
+     will be displayed. As noted above, absolute links will be considered as relative
+     to the *absolute code path*.
+   * :clink:`path-to-code` - in this case the "path-to-code" will be the link's text.
 
 Examples
 ^^^^^^^^
