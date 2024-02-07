@@ -17,6 +17,14 @@
 
 {{ mastertoctree }}
 
+.. The following is a trick to get the general index on the side bar.
+
+.. toctree::
+   :hidden:
+
+   genindex
+
+
 Indices and tables
 ==================
 

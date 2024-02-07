@@ -94,7 +94,7 @@ rst_prolog = """
 
 
 # -- codelink_extension configuration ----------------------------------------
-code_path = {{ code_path | repr }}
+code_path_override = {{ code_path | repr }}
 link_to_github = {{ link_to_github | repr }}
 
 
