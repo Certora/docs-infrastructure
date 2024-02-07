@@ -16,6 +16,10 @@ release = docsinfra.__version__
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
+# Ensure this is always a dev-build
+# See https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tags
+tags.add(TAGS.is_dev_build)  # noqa: F821
+
 extensions = [
     "docsinfra.sphinx_utils.codelink_extension",
     "docsinfra.sphinx_utils.includecvl",
