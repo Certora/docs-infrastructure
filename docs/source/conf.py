@@ -32,7 +32,7 @@ extensions = [
 
 templates_path = ["_templates"]
 exclude_patterns = [
-    "showcase/glossary_example.rst",  # Prevent warning on duplicate term description
+    "**/glossary_example.rst",  # Prevent warning on duplicate term description
 ]
 
 
@@ -76,7 +76,7 @@ add_module_names = False
 
 
 # -- codelink_extension configuration ----------------------------------------
-code_path = "../../code/"
+code_path_override = "../../code/"
 link_to_github = True
 
 
