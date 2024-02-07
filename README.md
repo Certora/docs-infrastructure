@@ -10,3 +10,5 @@ The package contains tools for:
    and additional pages that are ordinarily not displayed
 5. A `certora-doc-quickstart` script for quickly setting up
    a documentation project
+
+See [Certora Documents Infrastructure’s documentation](https://certora-docs-infrastructure.readthedocs-hosted.com/en/latest/).
