@@ -21,7 +21,8 @@ automatically by the :ref:`certora_doc_quickstart`.
 
 .. literalinclude:: /conf.py
    :language: python
-   :lines: 19-22
+   :start-at: extensions = [
+   :end-before: sphinx.ext.graphviz
    :emphasize-lines: 2
 
 Options

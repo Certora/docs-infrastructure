@@ -6,7 +6,7 @@
 Welcome to Certora Documents Infrastructure's documentation!
 ============================================================
 
-.. rubric:: A package for easily creating `Sphinx`_ docs for `Certora`_.
+.. rubric:: Easily create `Sphinx`_ docs for `Certora`_.
 
 
 Features
@@ -58,6 +58,7 @@ Create pdf versions
 For example
 :download:`Certora documents infrastructure </_static/pdfs/certoradocumentsinfrastructure.pdf>`.
 
+----
 
 Contents
 --------
@@ -94,4 +95,6 @@ Indices and tables
    -----
 
 .. _Sphinx: https://www.sphinx-doc.org/
+.. _sphinx-quickstart: https://www.sphinx-doc.org/en/master/man/sphinx-quickstart.html
 .. _Certora: https://www.certora.com/
+.. _MyST: https://myst-parser.readthedocs.io/

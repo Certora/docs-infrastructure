@@ -1,5 +1,6 @@
 .. index::
    single: quickstart
+   :name: quickstart_description
 
 Quickstart
 ==========
