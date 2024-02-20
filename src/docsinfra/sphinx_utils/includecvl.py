@@ -4,7 +4,7 @@ spec files.
 """
 from typing import Any
 
-from cvldoc_parser import CvlElement, parse
+from cvldoc_parser import parse
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
@@ -13,6 +13,8 @@ from sphinx.directives.code import (LiteralInclude, LiteralIncludeReader,
                                     container_wrapper)
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
+
+from .cvlid import CVL_IDS_PARSER, CVLIdentifier
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +26,6 @@ _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
 
 
 # TODO: Enable replacing some lines by ellipsis
-# TODO: Hooks are currently ignored by cvldoc_parser, once fixed enable extracting them
 class CVLIncludeReader(LiteralIncludeReader):
     """
     Extends LiteralIncludeReader by allowing to access CVL elements in spec files.
@@ -35,7 +36,6 @@ class CVLIncludeReader(LiteralIncludeReader):
     """
 
     INVALID_OPTIONS_PAIR = _INVALID_OPTIONS_PAIR
-    METHODS = "methods"
     SPACING = "spacing"
     _default_spacing = 1  # Single line spacing between elements
 
@@ -59,50 +59,52 @@ class CVLIncludeReader(LiteralIncludeReader):
 
         return "".join(lines), len(lines)
 
-    def _get_cvlelement_name(self, cvlelement: CvlElement) -> str:
-        """
-        :return: the name of the element, or ``self.METHODS`` if this element is the
-            methods block
-        """
-        name = cvlelement.ast.name
-        if name is None and cvlelement.ast.kind == self.METHODS:
-            # The methods block
-            name = self.METHODS
-        return name
-
     def cvlobject_filter(
         self, lines: list[str], location: tuple[str, int] | None = None
     ) -> list[str]:
-        cvlobjects = self.options.get("cvlobject")
+        cvlobject_option = self.options.get("cvlobject")
         spacing_lines = self.options.get(self.SPACING, self._default_spacing) + 1
 
         # Set the language
         if self.options.get("language") is None:
             self.options["language"] = "cvl"
 
-        if cvlobjects:
+        if cvlobject_option:
             try:
                 # TODO: Since `parse` only accepts filenames, we reread the file.
                 # Should fix this hack once `cvldoc_parser.parse` accepts strings.
-                parsed = parse([self.filename])
+                parsed = parse(self.filename)
             except ValueError:
                 raise ValueError(f"CVLDoc failed to parse {self.filename}")
 
-            parsed = parsed[0]  # only a single file was parsed
             if len(parsed) == 0:
                 raise ValueError(f"CVLDoc returned no elements for {self.filename}")
 
-            cvlobjects = cvlobjects.split()  # Accept a list of cvl objects
+            # Parse the elements ids
+            cvlobjects, warnings = CVL_IDS_PARSER(cvlobject_option)
+            for warning in warnings:
+                # Log the warnings
+                logger.warning(__(warning), location=location)
+
             cvls = dict.fromkeys(cvlobjects)  # Keep the order
+            identifier = CVLIdentifier()
 
             for cvlelement in parsed:
-                name = self._get_cvlelement_name(cvlelement)
-                if name in cvls:
-                    if cvls[name] is not None:
-                        raise ValueError(
-                            f"Found two elements matching {name} in {self.filename}"
-                        )
-                    cvls[name] = cvlelement.raw()
+                # NOTE: we use the first matching key
+                try:
+                    name = next(
+                        key
+                        for key in cvls
+                        if identifier.is_identifier_of(key, cvlelement)
+                    )
+                except StopIteration:
+                    continue
+
+                if cvls[name] is not None:
+                    raise ValueError(
+                        f"Found two elements matching {name} in {self.filename}"
+                    )
+                cvls[name] = cvlelement.raw()
 
             # Warn about missing elements
             for name, element in cvls.items():
@@ -119,6 +121,7 @@ class CVLIncludeReader(LiteralIncludeReader):
             spacing = "\n" * spacing_lines
             text = spacing.join(cvls.values())
             lines = text.splitlines(True)
+
         return lines
 
 
