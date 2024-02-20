@@ -4,6 +4,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import docsinfra
 from docsinfra.sphinx_utils import TAGS, CVL2Lexer
+from docsinfra.sphinx_utils.cvlid import SEPARATOR, CVLIdentifier
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -66,16 +67,29 @@ html_theme_options = {
 # html_logo = "_static/Certora_Logo_Black.svg"
 
 
-# -- prologue ----------------------------------------------------------------
+# -- autodoc  ------------------------------------------------------------------
+autoclass_content = "both"
+autodoc_member_order = "bysource"
+
+
+# -- prologue and epilog -------------------------------------------------------
 # A string of reStructuredText that will be included at the beginning of every source
 # file that is read.
-# Use the prologue to add inline cvl code and solidity code.
+# Here we use the prologue to add inline cvl code and solidity code.
 rst_prolog = """
 .. role:: cvl(code)
    :language: cvl
 
 .. role:: solidity(code)
    :language: solidity
+"""
+
+# A string of reStructuredText that will be included at the end of every source file
+# that is read. Used here to add substitutions.
+_supported_kinds = ", ".join(f'"{kind}"' for kind in CVLIdentifier.supported_kinds())
+rst_epilog = f"""
+.. |SEPARATOR| replace:: {SEPARATOR}
+.. |SUPPORTED_KINDS| replace:: {_supported_kinds}
 """
 
 

@@ -136,7 +136,7 @@ Example
       .. code-block:: markdown
 
          ```{cvlinclude} ../../../../code/voting/Voting_solution.spec
-         :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
+         :cvlobject: numVoted HookSstore:_hasVoted[KEY address voter] sumResultsEqualsTotalVotes
          :caption: Voting rules
 
    .. tab-item:: reStructuredText (.rst)
@@ -145,13 +145,13 @@ Example
       .. code-block:: restructuredtext
          
          .. cvlinclude:: ../../../../code/voting/Voting_solution.spec
-            :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
+            :cvlobject: numVoted HookSstore:_hasVoted[KEY address voter] sumResultsEqualsTotalVotes
             :caption: Voting rules
 
 *Rendered as:*
 
 .. cvlinclude:: ../../../../code/voting/Voting_solution.spec
-   :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
+   :cvlobject: numVoted HookSstore:_hasVoted[KEY address voter] sumResultsEqualsTotalVotes
    :caption: Voting rules
 
 * If the path to the spec file is absolute, it is considered as relative to the
@@ -159,6 +159,7 @@ Example
 * The ``:cvlobject:`` option accepts names of CVL elements (rule, invariant and ghosts).
   To include the :cvl:`methods` block, add ``methods`` to these names.
   The elements will be shown in the order they are given.
+  See :ref:`cvl_element_id_syntax` for how elements ids are defined.
 
 .. note::
 
@@ -175,7 +176,7 @@ For all possible options of ``literalinclude``, see the `literalinclude directiv
 
    An alternative to using line numbers when including code are the
    ``:start-after:``, ``:start-at:``, ``:end-before:``, and ``:end-at:`` options.
-   These accept string, which they match to find the desired lines.
+   Each of these accepts a string, which they match to find the desired lines.
 
 For example:
 
