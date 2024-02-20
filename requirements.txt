@@ -14,11 +14,13 @@ certifi==2024.2.2
     # via requests
 charset-normalizer==3.3.2
     # via requests
-cvldoc==1.0.1
+--pre --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple cvldoc==2.0.0b7
+    # Manually changed to beta version
     # via
     #   docsinfra (pyproject.toml)
     #   docsinfra (setup.cfg)
-cvldoc-parser==1.0.1
+--pre --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple cvldoc-parser==2.0.0b1
+    # Manually changed to beta version
     # via cvldoc
 docutils==0.19
     # via sphinx
@@ -109,6 +111,7 @@ urllib3==2.2.0
     # via requests
 myst-parser==2.0.0
     # Added manually
+
 
 # Install this repo as a package
 ./
