@@ -43,6 +43,14 @@ class CodeLinkConfig:
     def is_codepath_overridden(self):
         return self._code_path_override is not None and self._code_path_override != ""
 
+    def get_rel_path(self, path: Path) -> Path:
+        """
+        Returns path relative to code path.
+        """
+        if not self.is_codepath_overridden:
+            return None
+        return path.relative_to(self._code_path_override)
+
     def get_abs_path(self, path: str) -> Path:
         """
         Returns an absolute path to the file. If the path is relative, or there is
