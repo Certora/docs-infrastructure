@@ -4,7 +4,6 @@ spec files.
 """
 from typing import Any
 
-from cvldoc_parser import parse
 from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
@@ -14,7 +13,7 @@ from sphinx.directives.code import (LiteralInclude, LiteralIncludeReader,
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 
-from .cvlid import CVL_IDS_PARSER, CVLIdentifier
+from .cvlid import CVL_IDS_PARSER, CVLElements
 
 logger = logging.getLogger(__name__)
 
@@ -70,41 +69,18 @@ class CVLIncludeReader(LiteralIncludeReader):
             self.options["language"] = "cvl"
 
         if cvlobject_option:
-            try:
-                # TODO: Since `parse` only accepts filenames, we reread the file.
-                # Should fix this hack once `cvldoc_parser.parse` accepts strings.
-                parsed = parse(self.filename)
-            except ValueError:
-                raise ValueError(f"CVLDoc failed to parse {self.filename}")
-
-            if len(parsed) == 0:
-                raise ValueError(f"CVLDoc returned no elements for {self.filename}")
-
             # Parse the elements ids
             cvlobjects, warnings = CVL_IDS_PARSER(cvlobject_option)
             for warning in warnings:
                 # Log the warnings
                 logger.warning(__(warning), location=location)
 
-            cvls = dict.fromkeys(cvlobjects)  # Keep the order
-            identifier = CVLIdentifier()
-
-            for cvlelement in parsed:
-                # NOTE: we use the first matching key
-                try:
-                    name = next(
-                        key
-                        for key in cvls
-                        if identifier.is_identifier_of(key, cvlelement)
-                    )
-                except StopIteration:
-                    continue
-
-                if cvls[name] is not None:
-                    raise ValueError(
-                        f"Found two elements matching {name} in {self.filename}"
-                    )
-                cvls[name] = cvlelement.raw()
+            # TODO: Since `parse` only accepts filenames, we reread the file.
+            # Should fix this hack once `cvldoc_parser.parse` accepts strings.
+            elements_map = CVLElements.from_file(
+                self.filename, raise_on_multiple_matches=True
+            )
+            cvls = {key: elements_map.get(key) for key in cvlobjects}
 
             # Warn about missing elements
             for name, element in cvls.items():
@@ -115,8 +91,8 @@ class CVLIncludeReader(LiteralIncludeReader):
                         location=location,
                     )
 
-            # Remove missing elements
-            cvls = {name: el for name, el in cvls.items() if el is not None}
+            # Remove missing elements and switch to strings
+            cvls = {name: el.raw() for name, el in cvls.items() if el is not None}
 
             spacing = "\n" * spacing_lines
             text = spacing.join(cvls.values())

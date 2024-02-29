@@ -1,17 +1,11 @@
 """
-This module determines the syntax for identifying a CVL element in a given spec.
-It has two main classes:
-
-#. :class:`.CVLIdsParser` -- for parsing the cvl elements' ids from the ``:cvlobject:``
-   option
-#. :class:`.CVLIdentifier` -- for identifying if a :class:`~cvldoc_parser.CvlElement`
-   matches a given id
+This module provides a wrapper for :class:`CvlElement`.
 """
 import re
 from collections.abc import Mapping
 from typing import NamedTuple, Optional
 
-from cvldoc_parser import AstKind, CvlElement
+from cvldoc_parser import AstKind, CvlElement, DocumentationTag, TagKind, parse
 
 SEPARATOR = ":"
 
@@ -35,15 +29,15 @@ class CVLIdsParser:
 
     >>> from docsinfra.sphinx_utils.cvlid import CVLIdsParser
     >>> lxr = CVLIdsParser()
-    >>> lxr("numVoted HookSstore@_hasVoted[KEY address voter]")
-    ParsedCVLKeys(keys=['numVoted', 'HookSstore@_hasVoted[KEY address voter]'],
+    >>> lxr("numVoted HookSstore:_hasVoted[KEY address voter]")
+    ParsedCVLKeys(keys=['numVoted', 'HookSstore:_hasVoted[KEY address voter]'],
     warnings=[])
 
-    >>> lxr("HookSstore@votes[INDEX uin256 i].to(offset 32) Voted")
-    ParsedCVLKeys(keys=['HookSstore@votes[INDEX uin256 i].to(offset 32)', 'Voted'],
+    >>> lxr("HookSstore:votes[INDEX uin256 i].to(offset 32) Voted")
+    ParsedCVLKeys(keys=['HookSstore:votes[INDEX uin256 i].to(offset 32)', 'Voted'],
     warnings=[])
 
-    >>> lxr("HookSstore@voted[INDEX uin256 i numVoted")
+    >>> lxr("HookSstore:voted[INDEX uin256 i numVoted")
     ParsedCVLKeys(keys=['uin256', 'i', 'numVoted'], warnings=['Unclosed ] in option',
     "Syntax error in option[0:23]: 'HookSstore@voted[INDEX '"])
     """
@@ -164,10 +158,57 @@ class StringToKind(Mapping[str, AstKind]):
             raise ValueError(f"Unknown kind {kind}")
 
 
-class CVLIdentifier:
+_KIND_CONVERTER = StringToKind()
+
+
+class StringToTag(Mapping[str, TagKind]):
     """
-    Identifies if a given id key matches a given :class:`~cvldoc_parser.CvlElement`.
+    Since objects of :class:`cvldoc_parser.TagKind` are not hashable, we use this class
+    to get unique strings for them. These objects describe documentation tags.
     """
+
+    def __init__(self):
+        self._tags = set(
+            sorted(name for name in dir(TagKind) if self._is_tag_name(name))
+        )
+
+    def _is_tag_name(self, name: str) -> bool:
+        return (not name.startswith("_")) and name[0].isupper()
+
+    def __len__(self) -> int:
+        return len(self._tags)
+
+    def __iter__(self):
+        for tag_name in self._tags:
+            yield tag_name
+
+    def __getitem__(self, key: str) -> TagKind:
+        try:
+            return getattr(TagKind, key)
+        except AttributeError:
+            raise KeyError(key)
+
+    def tag_to_str(self, tag: TagKind):
+        """
+        :meta public:
+        """
+        try:
+            return next(name for name in self if getattr(tag, name) == tag)
+        except StopIteration:
+            raise ValueError(f"Unknown tag {tag}")
+
+
+_TAG_CONVERTER = StringToTag()
+
+
+class CVLElemetWrapper:
+    """
+    Wraps :class:`CvlElement` and provides additional functions such as
+    getting the element's signature.
+    """
+
+    # TODO: maybe wrap CvlElement and add element_to_key, element_to_signature
+    # and is_identifier_of to the wrapped class
 
     _SEPARATOR = SEPARATOR  # Using the global separator
 
@@ -190,8 +231,22 @@ class CVLIdentifier:
         "HookSstore": "slot_pattern",
     }
 
-    def __init__(self):
-        self._kind_converter = StringToKind()
+    _KIND_TO_KEYWORD = {
+        "Definition": "definition",
+        "Function": "function",
+        "GhostFunction": "ghost",
+        "GhostMapping": "ghost",
+        "Invariant": "invariant",
+        "Rule": "rule",
+        "HookOpcode": "hook",
+        "HookSload": "hook Sload",
+        "HookSstore": "hook Sstore",
+    }
+
+    def __init__(self, element: CvlElement):
+        self._element = element
+        if self.kind_name not in self.supported_kinds():
+            raise ValueError(f"Unsupported element kind {element}")
 
     @classmethod
     def supported_kinds(cls) -> list[str]:
@@ -203,6 +258,77 @@ class CVLIdentifier:
             + list(cls._NAMED_KINDS)
             + list(cls._EXTRA_DATA_KINDS)
         )
+
+    @property
+    def kind_name(self) -> str:
+        return _KIND_CONVERTER.kind_to_str(self._element.ast.kind)
+
+    @property
+    def keyword(self) -> str:
+        return self._KIND_TO_KEYWORD[self.kind_name]
+
+    @property
+    def to_key(self) -> str:
+        kind_name = self.kind_name
+        if kind_name in self._UNIQUE_KINDS:
+            return kind_name
+
+        if kind_name in self._NAMED_KINDS:
+            return self._element.element_name()
+
+        if kind_name in self._EXTRA_DATA_KINDS:
+            extra = self._element.ast.data[self._EXTRA_DATA_KINDS[kind_name]]
+            return f"{kind_name}{self._SEPARATOR}{extra}"
+        raise ValueError(f"Unexpected CVL kind {kind_name}")
+
+    @property
+    def signature(self) -> str:
+        kind_name = self.kind_name
+        if kind_name in self._UNIQUE_KINDS:
+            # E.g. "methods"
+            return kind_name
+
+        def get_param(param: dict[str, str]) -> str:
+            name = param["name"]
+            param_type = param["ty"]
+            return f"{param_type} {name}"
+
+        if kind_name in self._NAMED_KINDS:
+            name = self._element.element_name()
+            params = self._element.ast.data.get("params")
+            if params is not None:
+                params = ", ".join(get_param(par) for par in params)
+            else:
+                params = ""
+            return f"{name}({params})"
+
+        if kind_name in self._EXTRA_DATA_KINDS:
+            extra = self._element.ast.data[self._EXTRA_DATA_KINDS[kind_name]]
+            return f"{extra}"
+
+        raise ValueError(f"Unexpected CVL kind {kind_name}")
+
+    def documentation_to_rst(self) -> list[str]:
+        """
+        Translates the CVL "natspec" to restructuredText format, as a list of lines.
+        """
+
+        def doctag_to_rst(doctag: DocumentationTag) -> str:
+            if doctag.kind == TagKind.Param:
+                desc = doctag.param_name_and_description()
+                if desc is not None:
+                    name, desc = desc
+                    if name.endswith(":"):
+                        name = name[:-1]
+                    return f":param {name}: {desc}"
+
+            tagname = _TAG_CONVERTER.tag_to_str(doctag.kind).lower()
+            return f":{tagname}: {doctag.description}"
+
+        return [doctag_to_rst(doctag) for doctag in self._element.doc]
+
+    def raw(self) -> str:
+        return self._element.raw()
 
     def _parse_key(self, key: str) -> tuple[Optional[str], str]:
         """
@@ -220,19 +346,18 @@ class CVLIdentifier:
             )
 
         kind_name, data = key.split(self._SEPARATOR)
-        if kind_name not in self._kind_converter:
+        if kind_name not in _KIND_CONVERTER:
             raise ValueError(f"Unknown kind {kind_name} in {key}")
 
         return kind_name, data
 
-    def is_identifier_of(self, key: str, element: CvlElement) -> bool:
+    def is_identifier_of(self, key: str) -> bool:
         """
         :meta public:
         """
         key_kind_name, name = self._parse_key(key)
 
-        kind = element.ast.kind
-        kind_name = self._kind_converter.kind_to_str(kind)
+        kind_name = self.kind_name
 
         if kind_name in self._UNIQUE_KINDS:
             # This is for the methods block
@@ -243,14 +368,55 @@ class CVLIdentifier:
             )
 
         if kind_name in self._NAMED_KINDS:
-            return name == element.element_name() and (
+            return name == self._element.element_name() and (
                 (key_kind_name is None) or (key_kind_name == kind_name)
             )
 
         if kind_name in self._EXTRA_DATA_KINDS:
             if key_kind_name is None:
                 return False  # Cannot deduce kind from key
-            extra = element.ast.data[self._EXTRA_DATA_KINDS[kind_name]]
+            extra = self._element.ast.data[self._EXTRA_DATA_KINDS[kind_name]]
             return (key_kind_name == kind_name) and (extra == name)
 
         return False
+
+
+class CVLElements(Mapping[str, CVLElemetWrapper]):
+    """
+    Provides a mapping between CVL element's ids and the elements.
+    """
+
+    def __init__(
+        self, name: str, elements: list[CvlElement], raise_on_multiple_matches: bool
+    ):
+        self._name = name
+        self._elements = [CVLElemetWrapper(e) for e in elements]
+        self._raise_on_multiple_matches = raise_on_multiple_matches
+
+    @classmethod
+    def from_file(cls, filename: str, raise_on_multiple_matches: bool) -> "CVLElements":
+        try:
+            parsed = parse(filename)
+        except ValueError:
+            raise ValueError(f"CVLDoc failed to parse {filename}")
+
+        if len(parsed) == 0:
+            raise ValueError(f"CVLDoc returned no elements for {filename}")
+
+        return cls(filename, parsed, raise_on_multiple_matches)
+
+    def __len__(self) -> int:
+        return len(self)
+
+    def __iter__(self):
+        for element in self._elements:
+            yield element.to_key
+
+    def __getitem__(self, key: str) -> CvlElement:
+        matches = [el for el in self._elements if el.is_identifier_of(key)]
+        if len(matches) == 0:
+            raise KeyError(key)
+        if len(matches) > 1 and self._raise_on_multiple_matches:
+            raise ValueError(f"Found several elements matching {key} in {self._name}")
+        # Use the first one
+        return matches[0]
