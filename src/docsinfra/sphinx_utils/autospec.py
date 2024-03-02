@@ -16,7 +16,7 @@ from sphinx.util.docutils import SphinxDirective
 from sphinx.util.typing import OptionSpec
 
 from .cvl_domain import (MODULE, CVLDomain, CVLModule, CVLObject, _domain,
-                         module_name)
+                         module_name_from_filepath)
 from .cvlid import CVL_IDS_PARSER, CVLElements, CVLElemetWrapper
 
 logger = logging.getLogger(__name__)
@@ -115,7 +115,7 @@ class AutoSpecDoc(SphinxDirective):
             # Create module element
             cvl_module = CVLModule(
                 name=f"{_domain}:spec",
-                arguments=[module_name(filename, self.env)],
+                arguments=[module_name_from_filepath(filename, self.env)],
                 options=self.options,
                 content=self.content,
                 lineno=self.lineno,

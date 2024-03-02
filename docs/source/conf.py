@@ -4,7 +4,7 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 import docsinfra
 from docsinfra.sphinx_utils import TAGS, CVL2Lexer
-from docsinfra.sphinx_utils.cvlid import SEPARATOR, CVLIdentifier
+from docsinfra.sphinx_utils.cvlid import SEPARATOR, CVLElemetWrapper
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -24,6 +24,8 @@ tags.add(TAGS.is_dev_build)  # noqa: F821
 extensions = [
     "docsinfra.sphinx_utils.codelink_extension",
     "docsinfra.sphinx_utils.includecvl",
+    "docsinfra.sphinx_utils.cvl_domain",
+    "docsinfra.sphinx_utils.autospec",
     "sphinx.ext.graphviz",
     "sphinx.ext.todo",
     "sphinxcontrib.video",  # See https://sphinxcontrib-video.readthedocs.io/en/latest/
@@ -86,7 +88,7 @@ rst_prolog = """
 
 # A string of reStructuredText that will be included at the end of every source file
 # that is read. Used here to add substitutions.
-_supported_kinds = ", ".join(f'"{kind}"' for kind in CVLIdentifier.supported_kinds())
+_supported_kinds = ", ".join(f'"{kind}"' for kind in CVLElemetWrapper.supported_kinds())
 rst_epilog = f"""
 .. |SEPARATOR| replace:: {SEPARATOR}
 .. |SUPPORTED_KINDS| replace:: {_supported_kinds}
