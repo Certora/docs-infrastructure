@@ -203,3 +203,13 @@ For example:
    ^^^^^^^^^^^^
 
    .. include:: links_code.rst
+
+----
+
+Miscellaneous
+-------------
+
+File paths
+^^^^^^^^^^
+Use the ``:file:`` role to indicate a file path. For example
+:file:`/home/user-name/.bash_history`

@@ -4,7 +4,7 @@ directives for objects of a similar nature, and corresponding roles to create re
 to them.
 """
 from pathlib import Path
-from typing import Any, Iterable, NamedTuple, Optional, cast
+from typing import Any, Iterable, NamedTuple, Optional, Union, cast
 
 from docutils import nodes
 from docutils.nodes import Element, Node, reference, system_message
@@ -87,15 +87,20 @@ class CVLXRefRole(XRefRole):
         return title, target
 
 
-def module_name(modname: Optional[str], env: BuildEnvironment) -> Optional[str]:
+def module_name_from_filepath(
+    filepath: Optional[Union[str, Path]], env: BuildEnvironment
+) -> Optional[str]:
     """
-    The name of the spec file, without the ".spec" extension and using
-    "." instead of "/". Makes it relative to the "code/" folder, if provided.
+    Provides a shorter name for a module (i.e. spec file).
+    Returns the name of the spec file, without the ".spec" extension and using
+    "." instead of "/". Also makes it relative to the "code/" folder, if possible.
+
+    :param filepath: a path to the spec file
     """
-    if modname is None:
+    if filepath is None:
         return None
 
-    path = Path(modname)
+    path = Path(filepath)
 
     # Use path relative to code path if provided
     code_conf = CodeLinkConfig(env)
@@ -132,7 +137,7 @@ class CVLObject(ObjectDescription[tuple[str, str]]):
         "nocontentsentry": directives.flag,
         "module": directives.unchanged,  # TODO: change to spec?
         "addspecfiletoname": directives.flag,  # Adding the spec file path to name
-        "withoutspecpath": directives.flag,  # Remove the spec file path as part
+        "withoutspecpath": directives.flag,  # Do not add the spec file path as a field
     }
 
     doc_field_types = [
@@ -199,7 +204,26 @@ class CVLObject(ObjectDescription[tuple[str, str]]):
     @property
     def _module_name(self) -> Optional[str]:
         modname = self.options.get("module", self.env.ref_context.get(_module))
-        return module_name(modname, self.env)
+        return module_name_from_filepath(modname, self.env)
+
+    def insert_field(self, index: int, fieldname: str, field_content: str):
+        """
+        Insert a field (e.g. ``:param uint256 amount: the amount transferred``)
+        into the content to be parsed.
+
+        :param index: the location in the content to insert the field.
+        """
+        pass
+
+    def _gen_modname_signode(self, modname: str) -> addnodes.desc_addname:
+        """
+        Create a node from the module name (spec file).
+        """
+        specname = addnodes.desc_addname("", "")
+        for part in modname.split("."):
+            specname += addnodes.desc_sig_name(part, part)
+            specname += addnodes.desc_sig_punctuation(".", ".")
+        return specname
 
     def handle_signature(self, sig: str, signode: desc_signature) -> tuple[str, str]:
         """
@@ -239,14 +263,11 @@ class CVLObject(ObjectDescription[tuple[str, str]]):
         if modname is not None:
             if self._add_spec_file_to_name:
                 # Add spec file name to signature as prefix
-                # TODO: make spec file name into a class
-                specname = addnodes.desc_addname("", "")
-                for part in modname.split("."):
-                    specname += addnodes.desc_sig_name(part, part)
-                    specname += addnodes.desc_sig_punctuation(".", ".")
-                signode += specname
-            elif self._with_spec_path:
+                signode += self._gen_modname_signode(modname)
+
+            if self._with_spec_path:
                 # Insert the module name
+                # TODO: there must be a better way to do this
                 self.content.insert(0, StringList([f":spec: {modname}"]))
 
         signode += addnodes.desc_name("", "", addnodes.desc_sig_name(member, member))
@@ -257,7 +278,7 @@ class CVLObject(ObjectDescription[tuple[str, str]]):
             else:
                 _pseudo_parse_arglist(signode, arglist)
 
-        return fullname, member  # TODO: what about hooks?
+        return fullname, member  # TODO: what about hooks? ghosts? ...
 
     def _object_hierarchy_parts(self, sig_node: desc_signature) -> tuple[str, ...]:
         """
@@ -316,6 +337,15 @@ class CVLObject(ObjectDescription[tuple[str, str]]):
         Called before parsing content. Used to set information about the current
         directive context on the build environment.
         Usually used in the context of nested elements.
+        """
+        pass
+
+    def transform_content(self, contentnode: addnodes.desc_content) -> None:
+        """
+        Called after creating the content through nested parsing,
+        but before the ``object-description-transform`` event is emitted,
+        and before the info-fields are transformed.
+        Can be used to manipulate the content.
         """
         pass
 
