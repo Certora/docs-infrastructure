@@ -84,6 +84,7 @@ class CVL2Lexer(RegexLexer):
         r"\b(ALWAYS|CONSTANT|PER_CALLEE_CONSTANT|NONDET|HAVOC_ECF|HAVOC_ALL|"
         r"DISPATCHER|AUTO)\b"
     )
+    summaries_extra = r"\b(UNRESOLVED|ALL|DELETE)\b"
     methods_block_keywords = r"\b(external|internal|returns|envfree|expect)\b"
 
     hook_special_keywords = r"\b(Sstore|Sload|STORAGE|KEY)\b"
@@ -120,6 +121,7 @@ class CVL2Lexer(RegexLexer):
         "requireInvariant",
     )
     cvl_modifiers = r"(new|norevert|old|withrevert)\b"
+    cvl_declarations = ("persistent",)
 
     datatype = r"\b" + _datatypes_pattern + r"\b"
 
@@ -180,6 +182,7 @@ class CVL2Lexer(RegexLexer):
             # --------------
             (words(solidity_keywords, prefix=r"\b", suffix=r"\b"), Keyword.Reserved),
             (words(cvl_keywords, prefix=r"\b", suffix=r"\b"), Keyword.Reserved),
+            (words(cvl_declarations, prefix=r"\b", suffix=r"\b"), Keyword.Declaration),
             (words(cvl_imports, prefix=r"\b", suffix=r"\b"), Keyword.Namespace),
             (words(cvl_assertions, prefix=r"\b", suffix=r"\b"), Keyword.Reserved),
             (words(cvl_builtins, prefix=r"\b", suffix=r"\b"), Name.Builtin),
@@ -225,6 +228,7 @@ class CVL2Lexer(RegexLexer):
             include("comments"),
             (datatype, Keyword.Type),
             (methods_block_keywords, Keyword.Reserved),
+            (summaries_extra, Keyword.Reserved),
             #
             # Functions
             # ---------
@@ -247,7 +251,7 @@ class CVL2Lexer(RegexLexer):
             #
             # Summaries
             # ---------
-            # Wwe do not use Operator token for "=>" in order to
+            # We do not use Operator token for "=>" in order to
             # differentiate from other uses of the "=>" operator
             (
                 r"(=>)(\s+)" + summaries,
