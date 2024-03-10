@@ -11,4 +11,6 @@ The package contains tools for:
 5. A `certora-doc-quickstart` script for quickly setting up
    a documentation project
 
-See [Certora Documents Infrastructure’s documentation](https://certora-docs-infrastructure.readthedocs-hosted.com/en/latest/).
+* See [Certora Documents Infrastructure’s documentation](https://certora-docs-infrastructure.readthedocs-hosted.com/en/latest/).
+* Use [this link to Certora Documents Infrastructure’s documentation](https://certora-docs-infrastructure.readthedocs-hosted.com/_/sharing/Unn4mEMhjhx9sxC7oNLRT98AfX1s0k4u?next=/en/latest/)
+  if you are denied access.
