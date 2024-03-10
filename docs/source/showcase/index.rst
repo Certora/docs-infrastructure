@@ -39,6 +39,7 @@ For additional information see:
    Missing topics to add:
 
    * table ot contents (mainly the ``hidden`` option)
+   * adding images and using the ``only-light`` and ``only-dark`` classes in furo
    * tabs (from sphinx-design)
    * footnotes
    * ``.. rubric``,  ``.. centered`` and ``.. hlist``

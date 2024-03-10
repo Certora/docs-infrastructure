@@ -34,12 +34,26 @@ Contents for dev-build only
 To produce contents that will appear only in dev-build, use the ``.. only`` directive,
 like this:
 
-.. code-block:: restructuredtext
-   :caption: rst
+.. tab-set::
 
-   .. only:: is_dev_build
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-      The following will only be included in dev builds.
+      .. code-block:: markdown
+      
+         ```{only} is_dev_build
+      
+         The following will only be included in dev builds.
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+      
+         .. only:: is_dev_build
+      
+            The following will only be included in dev builds.
 
 .. card::
 
@@ -57,10 +71,23 @@ TODOs
 ^^^^^
 *TODO* comments will only appear in dev-build. To add a TODO comment:
 
-.. code-block:: restructuredtext
-   :caption: rst
+.. tab-set::
 
-   .. todo:: This is an example of a TODO comment, it can also have several paragraphs.
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+      
+         ```{todo}
+         This is an example of a TODO comment, it can also have several paragraphs.
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+      
+         .. todo:: This is an example of a TODO comment, it can also have several paragraphs.
 
 .. card::
 
@@ -72,6 +99,20 @@ TODOs
 
 To create a list containing all the TODO comments:
 
-.. code-block:: restructuredtext
 
-   .. todolist::
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+      
+         ```{todolist}
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+      
+         .. todolist::

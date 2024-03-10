@@ -3,6 +3,11 @@
 Miscellaneous
 =============
 
+.. attention::
+
+   This section is currently only available for reStructuredText.
+   See `MyST Roles and Directives`_ for how to use these directives in MyST.
+
 .. index:: table
 
 Tables
@@ -137,3 +142,6 @@ following command:
    https://sphinxcontrib-video.readthedocs.io/en/latest/quickstart.html
 
 .. _FFmpeg: https://ffmpeg.org/
+
+.. _Myst Roles and Directives:
+   https://myst-parser.readthedocs.io/en/latest/syntax/roles-and-directives.html

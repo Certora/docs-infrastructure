@@ -8,8 +8,19 @@ Follow the link for more details.
 Single card
 -----------
 
-.. literalinclude:: panels_single_panel_example.rst
-   :language: restructuredtext
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: panels_single_panel_example.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: panels_single_panel_example.rst
+         :language: restructuredtext
 
 *Rendered as:*
 
@@ -18,8 +29,19 @@ Single card
 Grid with two cards
 -------------------
 
-.. literalinclude:: panels_two_cards_grid.rst
-   :language: restructuredtext
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: panels_two_cards_grid.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: panels_two_cards_grid.rst
+         :language: restructuredtext
 
 *Rendered as:*
 
@@ -57,8 +79,19 @@ Drop-down
 
 Drop-down content is useful for providing hidden hints. Here is a simple drop-down:
 
-.. literalinclude:: panels_dropdown.rst
-   :language: restructuredtext
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: panels_dropdown.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: panels_dropdown.rst
+         :language: restructuredtext
 
 *Rendered as:*
 
