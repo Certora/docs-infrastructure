@@ -32,11 +32,15 @@ extensions = [
     "sphinxcontrib.spelling",  # See https://sphinxcontrib-spelling.readthedocs.io/
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
     "sphinx.ext.autodoc",
+    "myst_parser",
 ]
 
 templates_path = ["_templates"]
 exclude_patterns = [
     "**/glossary_example.rst",  # Prevent warning on duplicate term description
+    "**/glossary_example.md",  # Prevent warning on duplicate term description
+    "features/*",  # Ignore MySt vs rst examples
+    "showcase/**/*.md",  # Ignore MyST examples
 ]
 
 
@@ -55,11 +59,11 @@ html_title = (
 
 # -- themes customizations -----------------------------------------------------
 html_theme_options = {
-    "light_logo": "logo.svg",
-    "dark_logo": "logo.svg",
+    "light_logo": "Certora_Logo_Black.svg",
+    "dark_logo": "Certora_Logo_White.svg",
 }
 # NOTE: For other themes use the following line:
-# html_logo = "_static/logo.svg"
+# html_logo = "_static/Certora_Logo_Black.svg"
 
 
 # -- prologue ----------------------------------------------------------------

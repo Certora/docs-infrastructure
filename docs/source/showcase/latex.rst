@@ -5,10 +5,23 @@ In-line math
 ------------
 For inline math use the ``:math:`` role. For example:
 
-.. code-block:: restructuredtext
+.. tab-set::
 
-   Let :math:`\mathcal{C}` be the category of groups and :math:`f: G \to H` be a
-   morphism in :math:`\mathcal{C}`.
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+      
+         Let {math}`\mathcal{C}` be the category of groups and {math}`f: G \to H` be a
+         morphism in {math}`\mathcal{C}`.
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+      
+         Let :math:`\mathcal{C}` be the category of groups and :math:`f: G \to H` be a
+         morphism in :math:`\mathcal{C}`.
 
 *Rendered as:*
 
@@ -23,12 +36,27 @@ Use the ``math`` directive, as shown below. See `Directives - math
 <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-math>`_
 for additional options and examples.
 
-.. code-block:: restructuredtext
+.. tab-set::
 
-   .. math::
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-      (a + b)^2  &=  (a + b)(a + b) \\
-                 &=  a^2 + 2ab + b^2
+      .. code-block:: markdown
+      
+         ```{math}
+         (a + b)^2  &=  (a + b)(a + b) \\
+                    &=  a^2 + 2ab + b^2
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+      
+         .. math::
+      
+            (a + b)^2  &=  (a + b)(a + b) \\
+                       &=  a^2 + 2ab + b^2
 
 *Rendered as:*
 
@@ -42,19 +70,42 @@ Advanced use
 ------------
 Here is an example of showing a conditional function.
 
-.. code-block:: restructuredtext
-   :caption: Conditional function in Latex
+.. tab-set::
 
-   .. math::
-      :nowrap:
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-      \begin{equation}
-      f(x) =
-      \begin{cases}
-           0  & \text{if } x \leq 0 \\
-           x^2 & \text{otherwise}
-      \end{cases}
-      \end{equation}
+      .. code-block:: markdown
+         :caption: Conditional function in Latex
+      
+         ```{math}
+         :nowrap:
+
+         \begin{equation}
+         f(x) =
+         \begin{cases}
+              0  & \text{if } x \leq 0 \\
+              x^2 & \text{otherwise}
+         \end{cases}
+         \end{equation}
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+         :caption: Conditional function in Latex
+      
+         .. math::
+            :nowrap:
+      
+            \begin{equation}
+            f(x) =
+            \begin{cases}
+                 0  & \text{if } x \leq 0 \\
+                 x^2 & \text{otherwise}
+            \end{cases}
+            \end{equation}
 
 *Rendered as:*
 

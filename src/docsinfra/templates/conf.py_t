@@ -70,14 +70,14 @@ html_title = (
 # -- themes customizations -----------------------------------------------------
 if html_theme == "furo":
     html_theme_options = {
-        "light_logo": "logo.svg",
-        "dark_logo": "logo.svg",
+        "light_logo": "Certora_Logo_Black.svg",
+        "dark_logo": "Certora_Logo_White.svg",
         # Disable the edit button, see:
         # https://pradyunsg.me/furo/customisation/edit-button/#disabling-on-read-the-docs
         "top_of_page_button": None,
     }
 else:
-    html_logo = "_static/logo.svg"
+    html_logo = "_static/Certora_Logo_Black.svg"
 
 
 # -- prologue ----------------------------------------------------------------

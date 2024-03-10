@@ -55,6 +55,10 @@ Alternatively, the following command will do the same:
    sphinx-build -M latexpdf docs/source docs/build/ -D latex_elements.papersize=a4paper \
      -D latex_logo=_static/logo.png
 
+.. note::
+
+   There are several logo ``.png`` images you can use in the :file:`_static` folder.
+
 Important options
 ^^^^^^^^^^^^^^^^^
 

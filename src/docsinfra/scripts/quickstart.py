@@ -174,11 +174,12 @@ class Quickstart:
         source = self._path / "source"
 
         # Copy the logo images to `_static` (the ".png" is needed for latex docs)
-        for ext in [".svg", ".png"]:
-            logo = "logo" + ext
-            logo_path = self._ASSETS / logo
-            static_path = source / f"{self._config.dot}static"
-            copyfile(logo_path, static_path / logo)
+        suffixes = {".svg", ".png"}
+        for path in self._ASSETS.iterdir():
+            if path.suffix in suffixes:
+                filename = path.parts[-1]
+                static_path = source / f"{self._config.dot}static"
+                copyfile(path, static_path / filename)
 
         # Copy the spelling_wordlist.txt
         spell_path = self._ASSETS / "spelling_wordlist.txt"

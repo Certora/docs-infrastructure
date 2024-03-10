@@ -6,11 +6,20 @@ Basic inline markup
 
 Fonts
 ^^^^^
-   
-.. literalinclude:: basic.rst
-   :language: restructuredtext
-   :caption: rst
 
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: basic.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: basic.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -21,27 +30,42 @@ Fonts
 
 Headings
 ^^^^^^^^
-For a full list and explanation, see: `reStructuredText Primer - Sections
-<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_.
 
-.. code-block:: restructuredtext
-   :caption: Headings conventions
+.. tab-set::
 
-   Section heading
-   ===============
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-   Sub-section
-   -----------
+      .. code-block:: restructuredtext
+         :caption: Headings conventions
 
-   Sub sub-section
-   ^^^^^^^^^^^^^^^
+         # Top level
 
-   Even lower level
-   """"""""""""""""
+         ## Second level
 
-Note there are no levels assigned to particular heading characters. Sphinx deduces the
-levels in each ``.rst`` file.
+         ### Third level
 
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      For a full list and explanation, see: `reStructuredText Sections`_.
+      Note there are no levels assigned to particular heading characters. Sphinx 
+      deduces the levels in each ``.rst`` file.
+      
+      .. code-block:: restructuredtext
+         :caption: Headings conventions
+      
+         Section heading
+         ===============
+      
+         Sub-section
+         -----------
+      
+         Sub sub-section
+         ^^^^^^^^^^^^^^^
+      
+         Even lower level
+         """"""""""""""""
 
 Horizontal rule
 ^^^^^^^^^^^^^^^
@@ -59,7 +83,6 @@ Bullet lists
 
 .. literalinclude:: lists.rst
    :language: restructuredtext
-   :caption: rst
 
 .. card::
 
@@ -71,9 +94,19 @@ Bullet lists
 Numbered lists
 ^^^^^^^^^^^^^^
 
-.. literalinclude:: lists_numbered.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: lists_numbered.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: lists_numbered.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -87,9 +120,19 @@ Numbered lists
 Definition list
 ^^^^^^^^^^^^^^^
 
-.. literalinclude:: lists_definitions.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: lists_definitions.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: lists_definitions.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -104,9 +147,19 @@ Links
 External links
 ^^^^^^^^^^^^^^
 
-.. literalinclude:: links_external.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: links_external.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: links_external.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -124,9 +177,19 @@ External links
 Embedding a Youtube video
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: youtube_example.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: youtube_example.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: youtube_example.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -142,34 +205,28 @@ Internal links
 
 Link anywhere inside the documentation.
 
-.. code-block:: restructuredtext
-   :caption: rst
 
-   .. _my-reference-label:
-   
-   Cross-reference inside documentation
-   """"""""""""""""""""""""""""""""""""
-   
-   Set up a label ``.. _my-reference-label`` as shown above.
-   Note underscore prefix in the label name .
-   To reference use the ``:ref:`` directive like so:  :ref:`my-reference-label`.
+.. tab-set::
 
-*Rendered as:*
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-.. _my-reference-label:
+      See `MyST Cross-referencing`_.
 
-Cross-reference inside documentation
-""""""""""""""""""""""""""""""""""""
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
 
-Set up a label ``.. _my-reference-label`` as shown above.
-Note underscore prefix in the label name .
-To reference use the ``:ref:`` directive like so:  :ref:`my-reference-label`.
-
-.. note::
-
-   This example was taken from
-   `Cross-referencing arbitrary locations
-   <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#ref-role>`_.
+      .. code-block:: restructuredtext
+      
+         .. _my-reference-label:
+         
+         Cross-reference inside documentation
+         """"""""""""""""""""""""""""""""""""
+         
+         Set up a label ``.. _my-reference-label`` as shown above. 
+         Note underscore prefix in the label name.
+         
+         To reference use the ``:ref:`` directive like so: :ref:`my-reference-label`.
 
 ----
 
@@ -179,23 +236,50 @@ Link to code file on Github
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Link to a code file using the ``:clink:`` role.
-The link will be either to Github or to local file, depending on the value
-of ``link_to_github`` variable in the ``source/conf.py`` file.
+The link will be either to `GitHub`_ or to local file, depending on the value
+of ``link_to_github`` variable in the :file:`source/conf.py` file.
+
 Absolute paths will be considered as relative to the *absolute code path*
--- see :ref:`code_path_variable`.
-For complete documentation, see :ref:`codelink_extension`.
+-- see :ref:`code_path_variable`. For complete documentation, see
+:ref:`codelink_extension`.
 
-.. code-block:: restructuredtext
-   :caption: Syntax
+The basic syntax is:
 
-   :clink:`Optional name <relative-path-to-code-file>`
-   :clink:`Optional name <absolute path relative to absolute code path>`
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+         :caption: Syntax
+      
+         {clink}`Optional name <relative-path-to-code-file>`
+         {clink}`Optional name <absolute path relative to absolute code path>`
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+         :caption: Syntax
+      
+         :clink:`Optional name <relative-path-to-code-file>`
+         :clink:`Optional name <absolute path relative to absolute code path>`
 
 For example:
 
-.. literalinclude:: links_code.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: links_code.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: links_code.rst
+         :language: restructuredtext
 
 .. card::
 
@@ -203,3 +287,15 @@ For example:
    ^^^^^^^^^^^^
 
    .. include:: links_code.rst
+
+
+.. Links
+   -----
+
+.. _reStructuredText Sections:
+   https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections
+
+.. _MyST Cross-referencing:
+   https://myst-parser.readthedocs.io/en/latest/syntax/cross-referencing.html
+
+.. _GitHub: https://github.com/

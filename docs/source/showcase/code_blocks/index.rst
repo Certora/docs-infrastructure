@@ -7,9 +7,9 @@ It is best to include a code-block from a spec or Solidity file that is part of
 a regtest. This will ensure that you will be alerted if there are any breaking changes.
 Use the directives described in :ref:`code_block_from_external`.
 
-Using ``includecvl`` (see :ref:`including_cvl_elements` below) has the added benefit that
-it is protected against changes to the code file itself. Added or removed lines will
-not affect it.
+Including source code for CVL elements using the ``includecvl`` directive
+(see :ref:`including_cvl_elements` below) has the added benefit that it is protected
+against changes to the code file itself. Added or removed lines will not affect it.
 
 
 In-place code
@@ -21,21 +21,40 @@ Code-block
 You can insert a *CVL* code block in-place, using the ``code-block`` directive, as
 shown below. The same directive can be used for other languages, such as Solidity.
 
-.. literalinclude:: cvl_code1.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: cvl_code1.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: cvl_code1.rst
+         :language: restructuredtext
 
 *Rendered as:*
 
 .. include:: cvl_code1.rst
 
-
 Additional features, such as line numbers and emphasized lines are demonstrated below.
 You can find all the options available at: `code-block directive`_.
 
-.. literalinclude:: cvl_code2.rst
-   :language: restructuredtext
-   :caption: rst
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: cvl_code2.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: cvl_code2.rst
+         :language: restructuredtext
 
 *Rendered as:*
 
@@ -44,13 +63,45 @@ You can find all the options available at: `code-block directive`_.
 
 Inline CVL and solidity
 ^^^^^^^^^^^^^^^^^^^^^^^
-You can add inline *CVL* code using the ``:cvl:`` role, and inline Solidity using
-the ``:solidity:`` role. For example, the following paragraph:
+.. tab-set::
 
-.. code-block:: restructuredtext
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
 
-   Type casting between integers in *CVL* has two different forms, :cvl:`assert_uint256`
-   and :cvl:`require_uint256`. In the :solidity:`constructor(uin256 x)` ...
+      You can add inline *CVL* code using the ``:cvl:`` role, and inline Solidity using
+      the ``:solidity:`` role. To do so you must first define these roles at the top
+      of your :file:`.md` file, like so:
+      
+      .. code-block:: markdown
+
+         ```{role} cvl(code)
+         :language: cvl
+         ```
+ 
+         ```{role} solidity(code)
+         :language: solidity
+         ```
+
+      Now we can use them, as in the following example:
+
+      .. code-block:: markdown
+
+         Type casting between integers in *CVL* has two different forms,
+         {cvl}`assert_uint256` and {cvl}`require_uint256`.
+         In the {solidity}`constructor(uin256 x)` ...
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      You can add inline *CVL* code using the ``:cvl:`` role, and inline Solidity using
+      the ``:solidity:`` role. These roles are defined in the :file:`conf.py` file.
+      For example, the following paragraph:
+
+      .. code-block:: restructuredtext
+
+         Type casting between integers in *CVL* has two different forms,
+         :cvl:`assert_uint256` and :cvl:`require_uint256`. In the
+         :solidity:`constructor(uin256 x)` ...
 
 .. card::
 
@@ -77,11 +128,25 @@ Complete documentation is available at :ref:`includecvl_extension`.
 Example
 """""""
 
-.. code-block:: restructuredtext
-   
-   .. cvlinclude:: ../../../../code/voting/Voting_solution.spec
-      :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
-      :caption: Voting rules
+.. tab-set::
+
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+
+         ```{cvlinclude} ../../../../code/voting/Voting_solution.spec
+         :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
+         :caption: Voting rules
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+         
+         .. cvlinclude:: ../../../../code/voting/Voting_solution.spec
+            :cvlobject: numVoted onlyLegalVotedChanges sumResultsEqualsTotalVotes
+            :caption: Voting rules
 
 *Rendered as:*
 
@@ -114,12 +179,28 @@ For all possible options of ``literalinclude``, see the `literalinclude directiv
 
 For example:
 
-.. code-block:: restructuredtext
+.. tab-set::
 
-   .. literalinclude:: ../../../../code/voting/Voting.sol
-      :language: solidity
-      :lines: 4-
-      :emphasize-lines: 4-6
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. code-block:: markdown
+
+         ```{literalinclude} ../../../../code/voting/Voting_solution.spec
+         :language: solidity
+         :lines: 4-
+         :emphasize-lines: 4-6
+         ```
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. code-block:: restructuredtext
+
+         .. literalinclude:: ../../../../code/voting/Voting.sol
+            :language: solidity
+            :lines: 4-
+            :emphasize-lines: 4-6
 
 *Rendered as:*
       
