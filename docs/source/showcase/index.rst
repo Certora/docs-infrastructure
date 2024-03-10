@@ -8,10 +8,16 @@ Sphinx tutorial and showcase
 
 This chapter describes the most useful Sphinx directives and roles.
 
+If you're markdown files (:file:`.md`) -- these use the `MyST`_ package, and the
+MyST examples are what you need.
+Those using reStructuredText filed (:file:`.rst`) should refer to the reStructuredText
+examples.
+
 For additional information see:
 
-* `reStructuredText Primer <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`_
-* `Sphinx Directives <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html>`_
+* `reStructuredText Primer`_
+* `Sphinx Directives`_
+* `MyST`_
 
 
 .. toctree::
@@ -36,3 +42,15 @@ For additional information see:
    * tabs (from sphinx-design)
    * footnotes
    * ``.. rubric``,  ``.. centered`` and ``.. hlist``
+
+
+.. Links
+   -----
+
+.. _reStructuredText Primer:
+   https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
+
+.. _Sphinx Directives:
+   https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html
+
+.. _MyST: https://myst-parser.readthedocs.io/

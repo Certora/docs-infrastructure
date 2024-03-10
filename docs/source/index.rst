@@ -16,36 +16,51 @@ Include CVL code
 ^^^^^^^^^^^^^^^^
 Easily include CVL code from spec files.
 
-.. code-block:: restructuredtext
-   :caption: source
+.. tab-set::
 
-   .. cvlinclude:: /../../code/voting/Voting_solution.spec
-      :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes numVoted
-      :spacing: 1
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: features/includecvl.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: features/includecvl.rst
+         :language: restructuredtext
 
 .. card::
 
    Rendered as:
    ^^^^^^^^^^^^
 
-   .. cvlinclude:: /../../code/voting/Voting_solution.spec
-      :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes numVoted
-      :spacing: 1
+   .. include:: features/includecvl.rst
+
 
 Link to Github
 ^^^^^^^^^^^^^^
 
-.. code-block:: restructuredtext
-   :caption: source
+.. tab-set::
 
-   See for example :clink:`Voting solution spec </voting/Voting_solution.spec>`.
+   .. tab-item:: MyST (.md)
+      :sync: mystKey
+
+      .. literalinclude:: features/githublink.md
+         :language: markdown
+
+   .. tab-item:: reStructuredText (.rst)
+      :sync: rstKey
+
+      .. literalinclude:: features/githublink.rst
+         :language: restructuredtext
 
 .. card::
 
    Rendered as:
    ^^^^^^^^^^^^
 
-   See for example :clink:`Voting solution spec </voting/Voting_solution.spec>`.
+   .. include:: features/githublink.rst
 
 CVL syntax highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -78,9 +93,6 @@ Contents
    :hidden:
 
    genindex
-
-
-.. todo:: Add information about the ``myst-parser`` package.
 
 
 Indices and tables

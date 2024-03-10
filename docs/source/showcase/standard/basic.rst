@@ -1,2 +1,2 @@
 * We can use *italic* and **bold**.
-* using ``double quotes`` provides a code style.
+* We can even have a ``mono font``.

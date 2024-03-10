@@ -1,7 +1,7 @@
 .. glossary::
 
    CVL
-      The Certora Veification Language, used for writing specs for Solidity contracts.
+      The Certora Verification Language, used for writing specs for Solidity contracts.
 
    Prover
    Certora Prover
