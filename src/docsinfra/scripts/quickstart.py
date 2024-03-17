@@ -104,7 +104,7 @@ class QuickstartConfig:
     path: Path
     project: str  # Project name
     copyright: str = field(init=False)  # Copyright - determined in __post_init__
-    html_theme: str = THEMES.default
+    html_theme: str = THEMES.default.name
 
     # Path to code folder, see
     # https://www.sphinx-doc.org/en/master/extdev/envapi.html#sphinx.environment.BuildEnvironment.relfn2path
