@@ -28,6 +28,10 @@ _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
 class CVLIncludeReader(LiteralIncludeReader):
     """
     Extends LiteralIncludeReader by allowing to access CVL elements in spec files.
+
+    * By default, the language used is CVL.
+    * Currently does *not* support both ``diff`` and ``cvlobject`` (for showing the diff
+      for a particular object).
     """
 
     INVALID_OPTIONS_PAIR = _INVALID_OPTIONS_PAIR
@@ -72,8 +76,11 @@ class CVLIncludeReader(LiteralIncludeReader):
         cvlobjects = self.options.get("cvlobject")
         spacing_lines = self.options.get(self.SPACING, self._default_spacing) + 1
 
+        # Set the language
+        if self.options.get("language") is None:
+            self.options["language"] = "cvl"
+
         if cvlobjects:
-            self.options["language"] = "cvl"  # Set the language
             try:
                 # TODO: Since `parse` only accepts filenames, we reread the file.
                 # Should fix this hack once `cvldoc_parser.parse` accepts strings.
