@@ -95,7 +95,19 @@ rule votesChangeByOne(method f) {
 }
 
 
-/// @title Voter determines if vote in favor or against
+/** @title Voter determines if vote in favor or against
+ *  @notice Notice something amazing, can this span multiple lines and paragraphs? We'll
+ *  just have to check. No multiple paragraphs.
+ *  But we can do inline math :math:`x + y \leq z`!
+ *  @param isInFavor for or against the proposal
+ *  @return This is a rule, it has no return value!
+ *
+ *  Free text follows an empty line after the last tag.
+ *  This can even include nested content -- but note that `cvldoc` removes spaces, which
+ *  will cause issues.
+ *
+ *  .. tip:: Restructured text admonition!
+ */
 rule voterDecides(bool isInFavor) {
     uint256 preFavor = votesInFavor();
     uint256 preAgainst = votesAgainst();

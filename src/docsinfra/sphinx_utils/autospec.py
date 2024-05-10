@@ -1,86 +1,20 @@
 """
 Automatically document specs or spec elements.
 """
-from typing import Any, Optional
+from typing import Any
 
-from cvldoc_parser import AstKind, CvlElement
-from docutils import nodes
 from docutils.nodes import Element, Node
 from docutils.parsers.rst import directives
-from docutils.statemachine import State, StateMachine, StringList
 from sphinx.application import Sphinx
-from sphinx.directives.code import container_wrapper
 from sphinx.locale import __
-from sphinx.util import logging, parselinenos
-from sphinx.util.docutils import SphinxDirective
+from sphinx.util import logging
+from sphinx.util.docutils import SphinxDirective, switch_source_input
 from sphinx.util.typing import OptionSpec
 
-from .cvl_domain import (MODULE, CVLDomain, CVLModule, CVLObject, _domain,
-                         module_name_from_filepath)
-from .cvlid import CVL_IDS_PARSER, CVLElements, CVLElemetWrapper
+from .cvl_domain import CVLModule, _domain, module_name_from_filepath
+from .cvlid import CVL_IDS_PARSER, CVLElements
 
 logger = logging.getLogger(__name__)
-
-
-class CVLElementToArgs:
-    """
-    Generate a :cvl:`CVLObject` from a :class:`CvlElement`.
-    """
-
-    def __init__(
-        self,
-        element: CVLElemetWrapper,
-        filename: Optional[str],
-        lineno: int,
-        content_offset: int,
-        block_text: str,
-        state: State,
-        state_machine: StateMachine,
-    ):
-        self._element = element
-        self._filename = filename
-        self._lineno = lineno
-        self._content_offset = content_offset
-        self._block_text = block_text
-        self._state = state
-        self._state_machine = state_machine
-
-    @property
-    def directive_name(self) -> str:
-        keyword = self._element.keyword
-        if keyword not in CVLDomain.directives:
-            raise ValueError(f"Unexpected keyword: {keyword}")
-
-        return f"{_domain}:{keyword}"
-
-    @property
-    def arguments(self) -> list[str]:
-        """
-        Returns a single argument which is the signature of the element.
-        """
-        return [self._element.signature]
-
-    def options(self) -> dict[str, str]:
-        ret = {}
-        if self._filename is not None:
-            ret[MODULE] = self._filename
-        return ret
-
-    def content(self) -> StringList:
-        return StringList(self._element.documentation_to_rst())
-
-    def generate(self) -> CVLObject:
-        return CVLObject(
-            name=self.directive_name,
-            arguments=self.arguments,
-            options=self.options(),
-            content=self.content(),
-            lineno=self._lineno,
-            content_offset=self._content_offset,
-            block_text=self._block_text,
-            state=self._state,
-            state_machine=self._state_machine,
-        )
 
 
 class AutoSpecDoc(SphinxDirective):
@@ -150,17 +84,13 @@ class AutoSpecDoc(SphinxDirective):
 
             # Add elements' descriptions
             for element in elements.values():
-                generator = CVLElementToArgs(
-                    element,
-                    filename,
-                    self.lineno,
-                    self.content_offset,
-                    self.block_text,
-                    self.state,
-                    self.state_machine,
-                )
-                obj = generator.generate()
-                retnodes += obj.run()
+                content = element.documentation_to_rst()
+                with switch_source_input(self.state, content):
+                    # Any node with children will do, see
+                    # https://www.sphinx-doc.org/en/master/extdev/markupapi.html
+                    node = Element()
+                    self.state.nested_parse(content, 0, node)
+                retnodes += node.children
 
             return retnodes
         except Exception as exc:

@@ -86,6 +86,7 @@ Contents
    output/pdf
    showcase/index
    reference/index
+   example.rst
 
 .. The following is a trick to get the general index on the side bar.
 

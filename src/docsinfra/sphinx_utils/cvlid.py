@@ -3,9 +3,13 @@ This module provides a wrapper for :class:`CvlElement`.
 """
 import re
 from collections.abc import Mapping
+from pathlib import Path
 from typing import NamedTuple, Optional
 
 from cvldoc_parser import AstKind, CvlElement, DocumentationTag, TagKind, parse
+from docutils.statemachine import StringList
+
+from .cvl_domain import _domain
 
 SEPARATOR = ":"
 
@@ -201,16 +205,50 @@ class StringToTag(Mapping[str, TagKind]):
 _TAG_CONVERTER = StringToTag()
 
 
+class IndexToLine:
+    """
+    This class is for translating an index in a file to the line number. This is needed
+    because a :class:`CvlElement` provides its span only in terms of character index,
+    and not the line numbers used by :mod:`Sphinx` for location.
+
+    This class is callable, returning the line number for a given character index.
+    """
+
+    def __init__(self, path: Path):
+        self._path = path
+        with open(path) as f:
+            text = f.read()
+
+        # Calculate the cumulative line length
+        cur_sum = 0
+        self._cum_length = []
+        for line in text.splitlines(keepends=True):
+            cur_sum += len(line)
+            self._cum_length.append(cur_sum)
+
+    @property
+    def path(self) -> Path:
+        return self._path
+
+    def __call__(self, char_index: int) -> int:
+        try:
+            index = next(
+                i for i, cumsum in enumerate(self._cum_length) if cumsum > char_index
+            )
+            return index + 1  # Line numbers start at 1
+        except StopIteration:
+            return len(self._cum_length) + 1
+
+
 class CVLElemetWrapper:
     """
     Wraps :class:`CvlElement` and provides additional functions such as
-    getting the element's signature.
+    getting the element's signature. In addition treats any text after an empty line
+    following the last tag as free description text.
     """
 
-    # TODO: maybe wrap CvlElement and add element_to_key, element_to_signature
-    # and is_identifier_of to the wrapped class
-
     _SEPARATOR = SEPARATOR  # Using the global separator
+    _RST_TAB_LENGTH = 3  # Three spaces in reStructuredText
 
     _UNIQUE_KINDS = {"Methods": "methods"}
 
@@ -243,10 +281,13 @@ class CVLElemetWrapper:
         "HookSstore": "hook Sstore",
     }
 
-    def __init__(self, element: CvlElement):
+    def __init__(
+        self, element: CvlElement, index_to_line: Optional[IndexToLine] = None
+    ):
         self._element = element
         if self.kind_name not in self.supported_kinds():
             raise ValueError(f"Unsupported element kind {element}")
+        self._index_to_line = index_to_line
 
     @classmethod
     def supported_kinds(cls) -> list[str]:
@@ -308,24 +349,123 @@ class CVLElemetWrapper:
 
         raise ValueError(f"Unexpected CVL kind {kind_name}")
 
-    def documentation_to_rst(self) -> list[str]:
+    @property
+    def lines_span(self) -> tuple[int, int]:
         """
-        Translates the CVL "natspec" to restructuredText format, as a list of lines.
+        The start and end lines of the element.
         """
+        span = self._element.span()
+        return (self._index_to_line(span.start), self._index_to_line(span.end))
 
-        def doctag_to_rst(doctag: DocumentationTag) -> str:
+    def documentation_to_rst(self) -> StringList:
+        r"""
+        Translates the CVL "natspec" to restructuredText format, as a list of lines.
+        If there is text following an empty line in the last tag, it is treated as
+        free text.
+
+        For example, the following CVL spec code:
+
+        .. code-block:: cvl
+
+           /** @title Voter determines if vote in favor or against
+            *  @notice Notice something amazing, can this span multiple lines and paragraphs? We'll
+            *  just have to check. No multiple paragraphs.
+            *  But we can do inline math :math:`x + y \leq z`!
+            *  @param isInFavor for or against the proposal
+            *  @return This is a rule, it has no return value!
+            *
+            *  Free text follows an empty line after the last tag.
+            *  This can even include nested content -- but note that `cvldoc` removes spaces, which
+            *  will cause issues.
+            */
+
+        Will be converted to a :class:`StringList` equivalent to the following lines:
+
+        .. code-block:: restructuredtext
+
+           .. cvl:rule:: voterDecides(bool isInFavor)
+
+              :title: Voter determines if vote in favor or against
+              :notice: Notice something amazing, can this span multiple lines and paragraphs? We'll
+                 just have to check. No multiple paragraphs.
+                 But we can do inline math :math:`x + y \leq z`!
+              :param isInFavor: for or against the proposal
+              :return: This is a rule, it has no return value!
+
+              Free text follows an empty line after the last tag.
+              This can even include nested content -- but note that `cvldoc` removes spaces, which
+              will cause issues.
+
+        """
+        tab = " " * self._RST_TAB_LENGTH
+        lines = StringList()
+        source = str(self._index_to_line.path)
+        first_line, _ = self.lines_span
+
+        def divide_by_first_empty_line(desc: str) -> tuple[str, str]:
+            """
+            Returns the string before the first empty and after.
+            """
+            lines = desc.splitlines()
+            try:
+                first_empty_line = next(
+                    i for i, line in enumerate(lines) if line.strip() == ""
+                )
+            except StopIteration:
+                return (desc, "")
+
+            first_part = "\n".join(lines[:first_empty_line])
+            second_part = "\n".join(lines[first_empty_line:])
+            return (first_part, second_part)
+
+        def doctag_to_rst(doctag: DocumentationTag, is_last: bool = False) -> list[str]:
             if doctag.kind == TagKind.Param:
                 desc = doctag.param_name_and_description()
                 if desc is not None:
                     name, desc = desc
                     if name.endswith(":"):
                         name = name[:-1]
-                    return f":param {name}: {desc}"
+                    desc = desc.splitlines()
+                    prefix = f"{tab}:param {name}: "
+                else:
+                    raise ValueError(f"Unexpected documentation tag: {doctag}")
+            else:
+                tagname = _TAG_CONVERTER.tag_to_str(doctag.kind).lower()
+                desc = doctag.description
+                if is_last:
+                    # Ignore everything after empty line
+                    desc, _ = divide_by_first_empty_line(desc)
+                desc = desc.splitlines()
+                prefix = f"{tab}:{tagname}: "
+            return [prefix + desc[0]] + [2 * tab + dline for dline in desc[1:]]
 
-            tagname = _TAG_CONVERTER.tag_to_str(doctag.kind).lower()
-            return f":{tagname}: {doctag.description}"
+        # Parse all tags but the last.
+        line = first_line
+        num_tags = len(self._element.doc)
+        for i, doctag in enumerate(self._element.doc):
+            rst_lines = doctag_to_rst(doctag, is_last=i == num_tags - 1)
+            for rst_line in rst_lines:
+                lines.append(rst_line, source, line)
+                line += 1
 
-        return [doctag_to_rst(doctag) for doctag in self._element.doc]
+        # Add free text after last tag
+        last_tag = self._element.doc[-1]
+        _, free_text = divide_by_first_empty_line(last_tag.description)
+        if free_text != "":
+            for text_line in free_text.splitlines():
+                lines.append(tab + text_line, source, line)
+                line += 1
+
+        # First line is the directive, in the source it comes after the doc elements.
+        directive = f".. {_domain}:{self.keyword}:: {self.signature}"
+        lines.insert(0, directive, source, line)
+        lines.insert(1, "", source, line + 1)  # Empty line before fields
+
+        # TODO Below is a HACK. Sphinx seems to double the last line, so we add an empty
+        # line at the end
+        lines.append("", source)
+
+        return lines
 
     def raw(self) -> str:
         return self._element.raw()
@@ -387,10 +527,11 @@ class CVLElements(Mapping[str, CVLElemetWrapper]):
     """
 
     def __init__(
-        self, name: str, elements: list[CvlElement], raise_on_multiple_matches: bool
+        self, filename: str, elements: list[CvlElement], raise_on_multiple_matches: bool
     ):
-        self._name = name
-        self._elements = [CVLElemetWrapper(e) for e in elements]
+        path = Path(filename)
+        index_to_line = IndexToLine(path)
+        self._elements = [CVLElemetWrapper(e, index_to_line) for e in elements]
         self._raise_on_multiple_matches = raise_on_multiple_matches
 
     @classmethod

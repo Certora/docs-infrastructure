@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any, Iterable, NamedTuple, Optional, Union, cast
 
 from docutils import nodes
-from docutils.nodes import Element, Node, reference, system_message
+from docutils.nodes import Element, Node, reference
 from docutils.parsers.rst import directives
 from docutils.statemachine import StringList
 from sphinx import addnodes
@@ -15,13 +15,13 @@ from sphinx.addnodes import desc_signature, pending_xref
 from sphinx.application import Sphinx
 from sphinx.builders import Builder
 from sphinx.directives import ObjectDescription
-from sphinx.domains import Domain, Index, IndexEntry, ObjType
+from sphinx.domains import Domain, ObjType
 from sphinx.domains.python import _pseudo_parse_arglist  # TODO: replace this!
 from sphinx.environment import BuildEnvironment
 from sphinx.locale import _, __
 from sphinx.roles import XRefRole
 from sphinx.util import logging
-from sphinx.util.docfields import Field, GroupedField, TypedField
+from sphinx.util.docfields import Field, TypedField
 from sphinx.util.docutils import SphinxDirective
 from sphinx.util.nodes import (find_pending_xref_condition, make_id,
                                make_refnode, nested_parse_with_titles)

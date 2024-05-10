@@ -36,6 +36,7 @@ extensions = [
     "sphinxarg.ext",  # See https://sphinx-argparse.readthedocs.io/en/latest/index.html
     "sphinx.ext.autodoc",
     "myst_parser",
+    "sphinx_rtd_theme",
 ]
 
 templates_path = ["_templates"]
@@ -50,7 +51,7 @@ exclude_patterns = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "furo"
+html_theme = "sphinx_rtd_theme"
 html_static_path = ["_static"]
 html_short_title = "Certora Docs Infra"
 
@@ -61,12 +62,12 @@ html_title = (
 
 
 # -- themes customizations -----------------------------------------------------
-html_theme_options = {
-    "light_logo": "Certora_Logo_Black.svg",
-    "dark_logo": "Certora_Logo_White.svg",
-}
+# html_theme_options = {
+#    "light_logo": "logo.svg",
+#    "dark_logo": "logo.svg",
+# }
 # NOTE: For other themes use the following line:
-# html_logo = "_static/Certora_Logo_Black.svg"
+html_logo = "_static/logo.svg"
 
 
 # -- autodoc  ------------------------------------------------------------------
