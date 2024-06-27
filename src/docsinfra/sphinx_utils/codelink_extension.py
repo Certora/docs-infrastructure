@@ -235,6 +235,7 @@ class TutorialsCodeLink(XRefRole):
             logger.warning(
                 __("could not create GitHub link for %s, falling back to local link")
                 % target,
+                location=(env.docname, self.lineno),
             )
 
         return title, path_link
