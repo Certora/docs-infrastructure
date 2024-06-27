@@ -73,7 +73,7 @@ Example
 
 .. code-block:: restructuredtext
 
-   .. cvlinclude:: /../../code/voting/Voting_solution.spec
+   .. cvlinclude:: /voting/Voting_solution.spec
       :cvlobject: methods onlyLegalVotedChanges sumResultsEqualsTotalVotes
       :spacing: 2
       :caption: Voting rules
@@ -84,7 +84,7 @@ Example
    Rendered as:
    ^^^^^^^^^^^^
 
-   .. cvlinclude:: /../../code/voting/Voting_solution.spec
+   .. cvlinclude:: /voting/Voting_solution.spec
       :cvlobject: methods onlyLegalVotedChanges sumResultsEqualsTotalVotes
       :spacing: 2
       :caption: Voting rules
