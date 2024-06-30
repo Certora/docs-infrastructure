@@ -117,6 +117,55 @@ Inline CVL and solidity
 From external file
 ------------------
 
+Use the ``cvlinclude`` directive to include code snippets from files.
+
+Syntax
+^^^^^^
+
+.. code-block:: restructuredtext
+
+   .. cvlinclude:: path-to-file, see below
+      :language: language (optional), see below
+      :cvlobject: cvl objects to show, available only for spec files, see below
+      :spacing: <spacing-number>
+      :caption: caption (optional), see below
+      :lines: line-numbers of the snippet (optional)
+      :start-at: optional string marking the first line of included code
+      :start-after: optional string, the first line of the code starts after
+      :end-at: optional string marking the last line of included code
+      :end-before: optional string, the last line of the included code is before this
+
+path-to-file
+   The path to the file containing the code snippet. The path is resolved according
+   to the same :ref:`paths_resolution` used for the ``:clink:`` role.
+
+language
+   This is not needed for paths with suffixes ``.spec``, ``.sol`` or ``.conf``.
+   For these the appropriate language (i.e. CVL, Solidity and Json) will be used by
+   default.
+   See :attr:`~docsinfra.sphinx_utils.includecvl.CVLInclude.file_suffix_to_language`.
+
+cvlobject
+   See :ref:`including_cvl_elements` below.
+
+spacing-number
+   The number of lines between two CVL elements. Applicable only to spec files and
+   directives using the ``:cvlobject:`` option. Defaults to one.
+
+caption
+   If an empty caption is provided, the directive will use the default caption,
+   which is a code link to the file displaying the file's name, i.e.:
+
+   .. code-block:: restructuredtext
+
+      :clink:`file-name <path-to-file>`
+
+Note
+""""
+In addition ``cvlinclude`` supports all options supported by ``literalinclude``,
+see `literalinclude directive`_.
+
+
 .. _including_cvl_elements:
 
 Including CVL elements
@@ -165,19 +214,8 @@ Example
    Hooks are not supported (since they are not supported by the ``CVLDoc`` package).
    Use ``literalinclude`` below.
 
-Including any code
-^^^^^^^^^^^^^^^^^^
-Use the ``literalinclude`` directive to include code from an external file.
-As above, providing an absolute path is taken as relative to the ``/source/`` directory.
-For all possible options of ``literalinclude``, see the `literalinclude directive`_.
-
-.. important::
-
-   An alternative to using line numbers when including code are the
-   ``:start-after:``, ``:start-at:``, ``:end-before:``, and ``:end-at:`` options.
-   These accept string, which they match to find the desired lines.
-
-For example:
+Other Examples
+^^^^^^^^^^^^^^
 
 .. tab-set::
 
@@ -186,10 +224,10 @@ For example:
 
       .. code-block:: markdown
 
-         ```{literalinclude} ../../../../code/voting/Voting_solution.spec
-         :language: solidity
+         ```{cvlinclude} @voting/Voting.sol
          :lines: 4-
-         :emphasize-lines: 4-6
+         :emphasize-lines: 5-7
+         :caption:
          ```
 
    .. tab-item:: reStructuredText (.rst)
@@ -197,17 +235,17 @@ For example:
 
       .. code-block:: restructuredtext
 
-         .. literalinclude:: ../../../../code/voting/Voting.sol
-            :language: solidity
+         .. cvlinclude:: @voting/Voting.sol
             :lines: 4-
-            :emphasize-lines: 4-6
+            :emphasize-lines: 5-7
+            :caption:
 
 *Rendered as:*
       
-.. literalinclude:: ../../../../code/voting/Voting.sol
-   :language: solidity
+.. cvlinclude:: @voting/Voting.sol
    :lines: 4-
-   :emphasize-lines: 4-6
+   :emphasize-lines: 5-7
+   :caption:
 
 
 .. Links

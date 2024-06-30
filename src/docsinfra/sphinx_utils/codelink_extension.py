@@ -24,12 +24,16 @@ _ROLE_NAME = "clink"
 
 class CodeLinkConfig:
     """
-    The configuration needed for code links.
+    The configuration needed for code links. Determines how paths are resolved,
+    see :meth:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.relfn2path`.
 
     * Allows overriding the base path using ``code_path_override``.
     * Determine whether links are to github or local, using ``link_to_github``.
     * Enable creating path remappings using ``path_remappings`` dict. Each key
-      must start with ``@``, with values being paths (relative to the config file).
+      must start with ``@``, with values being paths relative to the source directory
+      (i.e. the directory containing the config file).
+      Values which are absolute paths will also be considered as relative to
+      the source directory.
       For example:
 
       .. code-block:: python
@@ -59,8 +63,23 @@ class CodeLinkConfig:
         """
         Similar to :meth:`BuildEnvironment.relfn2path`, returns a path relative to
         the documentation root and an absolute path. However this uses both the
-        ``code_path_override`` and the ``path_remappings``. See ``get_abs_path``
+        ``code_path_override`` and the ``path_remappings``.
+        See :meth:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.get_abs_path`
         for examples.
+
+        * Relative paths will be considered as relative to the current file.
+        * Absolute paths will either:
+
+          #. Be considered as relative to the source folder (the folder containing
+             the :file:`conf.py` file) -- if
+             :attr:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.is_codepath_overridden`
+             is ``False``.
+          #. Be considered as relative to the ``code_path_override`` -- if
+             :attr:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.is_codepath_overridden`
+             is ``True``.
+
+        * A path starting with ``@`` will be resolved according to the
+          ``path_remappings`` dict.
         """
         pathobj = Path(filename)
 

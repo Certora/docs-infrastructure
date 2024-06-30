@@ -29,11 +29,12 @@ _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
 # TODO: Hooks are currently ignored by cvldoc_parser, once fixed enable extracting them
 class CVLIncludeReader(LiteralIncludeReader):
     """
-    Extends LiteralIncludeReader by allowing to access CVL elements in spec files.
+    Extends :class:`sphinx.directives.code.LiteralIncludeReader` by allowing to
+    extract CVL elements in spec files by name.
 
     * By default, the language used is CVL.
-    * Currently does *not* support both ``diff`` and ``cvlobject`` (for showing the diff
-      for a particular object).
+    * Currently does *not* support both ``diff`` together with ``cvlobject``
+      (for showing the diff for a particular object).
     """
 
     INVALID_OPTIONS_PAIR = _INVALID_OPTIONS_PAIR
@@ -132,15 +133,25 @@ _extended_option_spec[CVLIncludeReader.SPACING] = int
 
 class CVLInclude(LiteralInclude):
     """
-    Extends LiteralInclude to enable including CVL elements.
-    To include cvl elements use the ``cvlobject`` option and provide a list of
-    CVL elements names, separated by spaces. To include the methods block use
-    ``methods``. Also adds the ``spacing`` option which determines the number of lines
-    between CVL elements.
+    Extends :class:`sphinx.directives.code.LiteralInclude`.
+
+    #. Enables including CVL elements by name. To include cvl elements by name use the
+       ``cvlobject`` option and provide a list of CVL elements names, separated by
+       spaces. To include the methods block use ``methods``.
+       Also adds the ``spacing`` option which determines the number of lines between CVL
+       elements.
+    #. Automatically determines the language for certain file extensions using the
+       :attr:`~docsinfra.sphinx_utils.includecvl.CVLInclude.file_suffix_to_language`
+       class variable.
+    #. Changes the default caption to use a code link (``:clink:`` role) to the
+       relevant file. The *default caption* is used whenever there is an empty
+       ``:caption:`` caption option.
     """
 
     option_spec = _extended_option_spec
-    _file_suffix_to_language = {".spec": "cvl", ".sol": "solidity", ".conf": "json"}
+
+    file_suffix_to_language = {".spec": "cvl", ".sol": "solidity", ".conf": "json"}
+    """ Default languages to use for these suffixes. """
 
     def _default_caption(self) -> str:
         """
@@ -173,8 +184,8 @@ class CVLInclude(LiteralInclude):
             # Set language based on extension
             if ("language" not in self.options) and ("diff" not in self.options):
                 suffix = Path(filename).suffix
-                if suffix in self._file_suffix_to_language:
-                    self.options["language"] = self._file_suffix_to_language[suffix]
+                if suffix in self.file_suffix_to_language:
+                    self.options["language"] = self.file_suffix_to_language[suffix]
 
             reader = CVLIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
