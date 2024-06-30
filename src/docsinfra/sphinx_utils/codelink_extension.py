@@ -1,6 +1,7 @@
 """
 A Sphinx extension for linking source code files, either locally or to Github.
 """
+import os
 import re
 from pathlib import Path
 from typing import Any, Optional
@@ -23,25 +24,88 @@ _ROLE_NAME = "clink"
 
 class CodeLinkConfig:
     """
-    The configuration needed for code links.
+    The configuration needed for code links. Determines how paths are resolved,
+    see :meth:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.relfn2path`.
+
+    * Allows overriding the base path using ``code_path_override``.
+    * Determine whether links are to github or local, using ``link_to_github``.
+    * Enable creating path remappings using ``path_remappings`` dict. Each key
+      must start with ``@``, with values being paths relative to the source directory
+      (i.e. the directory containing the config file).
+      Values which are absolute paths will also be considered as relative to
+      the source directory.
+      For example:
+
+      .. code-block:: python
+
+         path_remappings = {"@training-examples": "../../../training-examples"}
     """
 
     def __init__(self, env: BuildEnvironment):
         self._env = env
         self._link_to_github = env.config.link_to_github
         self._code_path_override = env.config.code_path_override
-
-        if self.is_codepath_overridden:
-            # Calculate the codepath relative to the source dir
-            # To use env.relfn2path we need an absolute path
-            codepath = self._code_path_override
-            if not codepath.startswith("/"):
-                codepath = "/" + codepath
-            self._code_path_override = Path(env.relfn2path(codepath)[1]).absolute()
+        self._path_remappings = env.config.path_remappings
 
     @property
     def is_codepath_overridden(self):
         return self._code_path_override is not None and self._code_path_override != ""
+
+    def get_remapping(self, key: str) -> Optional[str]:
+        if self._path_remappings is None:
+            return None
+        if (not key.startswith("@")) or (key not in self._path_remappings):
+            return None
+
+        return self._path_remappings[key]
+
+    def relfn2path(self, filename: str) -> tuple[str, str]:
+        """
+        Similar to :meth:`BuildEnvironment.relfn2path`, returns a path relative to
+        the documentation root and an absolute path. However this uses both the
+        ``code_path_override`` and the ``path_remappings``.
+        See :meth:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.get_abs_path`
+        for examples.
+
+        * Relative paths will be considered as relative to the current file.
+        * Absolute paths will either:
+
+          #. Be considered as relative to the source folder (the folder containing
+             the :file:`conf.py` file) -- if
+             :attr:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.is_codepath_overridden`
+             is ``False``.
+          #. Be considered as relative to the ``code_path_override`` -- if
+             :attr:`~docsinfra.sphinx_utils.codelink_extension.CodeLinkConfig.is_codepath_overridden`
+             is ``True``.
+
+        * A path starting with ``@`` will be resolved according to the
+          ``path_remappings`` dict.
+        """
+        pathobj = Path(filename)
+
+        def rel_to_srcdir(file: str) -> str:
+            """
+            when the file path needs to be relative to the source dir
+            (``self._env.srcdir``) we convert it to absolute.
+            """
+            if not file.startswith(os.path.sep):
+                return os.path.sep + file
+            return file
+
+        if filename.startswith("@"):
+            # Use remapping
+            key = pathobj.parts[0]
+            remap = rel_to_srcdir(self.get_remapping(key))
+            if remap is not None:
+                # Replace the key with the remapped value
+                filename = str(Path(remap, *pathobj.parts[1:]))
+        elif pathobj.is_absolute() and self.is_codepath_overridden:
+            # Use overridden code path as
+            relpathobj = pathobj.relative_to(os.path.sep)
+            override = rel_to_srcdir(self._code_path_override)
+            filename = str(Path(override) / relpathobj)
+
+        return self._env.relfn2path(filename)
 
     def get_abs_path(self, path: str) -> Path:
         """
@@ -52,15 +116,17 @@ class CodeLinkConfig:
         Examples:
 
         >>> codelinkconfig._code_path_override
-        PosixPath('/home/shoham/dev/docs-infrastructure/code')
-        >>> codelinkconfig.get_abs_path('voting/Voting_solution.spec')
-        PosixPath('/home/shoham/dev/docs-infrastructure/docs/source/voting/Voting_solution.spec')
-        """
-        pathobj = Path(path)
-        if (not self.is_codepath_overridden) or (not pathobj.is_absolute()):
-            return Path(self._env.relfn2path(path)[1]).absolute()
+        '../../code/'
+        >>> codelinkconfig.get_abs_path('/voting/Voting_solution.spec')
+        PosixPath('/home/shoham/dev/docs-infrastructure/code/voting/Voting_solution.spec')
 
-        return self._code_path_override / (pathobj.relative_to(pathobj.root))
+        >>> codelinkconfig.get_remapping("@voting")
+        '../../code/voting'
+        >>> codelinkconfig.get_abs_path('@voting/Voting_solution.spec')
+        PosixPath('/home/shoham/dev/docs-infrastructure/code/voting/Voting_solution.spec')
+        """
+        _, abspath = self.relfn2path(path)
+        return Path(abspath).absolute()
 
     @property
     def link_to_github(self) -> bool:
@@ -73,6 +139,7 @@ class CodeLinkConfig:
         """
         app.add_config_value("code_path_override", None, "env")
         app.add_config_value("link_to_github", True, "env")
+        app.add_config_value("path_remappings", None, "env")  # dict[str, str]
 
 
 class GithubUrlsMaker:
@@ -187,6 +254,7 @@ class TutorialsCodeLink(XRefRole):
             logger.warning(
                 __("could not create GitHub link for %s, falling back to local link")
                 % target,
+                location=(env.docname, self.lineno),
             )
 
         return title, path_link
@@ -199,7 +267,7 @@ class TutorialsCodeLink(XRefRole):
         is_ref: bool,
     ) -> tuple[list[Node], list[system_message]]:
         """
-        Called before returning the finished nodes.  *node* is the reference
+        Called before returning the finished nodes. *node* is the reference
         node if one was created (*is_ref* is then true), else the content node.
         This method can add other nodes and must return a ``(nodes, messages)``
         tuple (the usual return value of a role function).

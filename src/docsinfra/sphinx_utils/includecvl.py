@@ -2,6 +2,7 @@
 A Sphinx extension which adds a Sphinx directive for including CVL snippets from
 spec files.
 """
+from pathlib import Path
 from typing import Any
 
 from cvldoc_parser import CvlElement, parse
@@ -14,12 +15,13 @@ from sphinx.directives.code import (LiteralInclude, LiteralIncludeReader,
 from sphinx.locale import __
 from sphinx.util import logging, parselinenos
 
+from .codelink_extension import CodeLinkConfig
+
 logger = logging.getLogger(__name__)
 
 _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
     ("diff", "cvlobject"),
     ("pyobject", "cvlobject"),
-    ("language", "cvlobject"),
 ]
 
 
@@ -27,11 +29,12 @@ _INVALID_OPTIONS_PAIR = LiteralIncludeReader.INVALID_OPTIONS_PAIR + [
 # TODO: Hooks are currently ignored by cvldoc_parser, once fixed enable extracting them
 class CVLIncludeReader(LiteralIncludeReader):
     """
-    Extends LiteralIncludeReader by allowing to access CVL elements in spec files.
+    Extends :class:`sphinx.directives.code.LiteralIncludeReader` by allowing to
+    extract CVL elements in spec files by name.
 
     * By default, the language used is CVL.
-    * Currently does *not* support both ``diff`` and ``cvlobject`` (for showing the diff
-      for a particular object).
+    * Currently does *not* support both ``diff`` together with ``cvlobject``
+      (for showing the diff for a particular object).
     """
 
     INVALID_OPTIONS_PAIR = _INVALID_OPTIONS_PAIR
@@ -130,17 +133,35 @@ _extended_option_spec[CVLIncludeReader.SPACING] = int
 
 class CVLInclude(LiteralInclude):
     """
-    Extends LiteralInclude to enable including CVL elements.
-    To include cvl elements use the ``cvlobject`` option and provide a list of
-    CVL elements names, separated by spaces. To include the methods block use
-    ``methods``. Also adds the ``spacing`` option which determines the number of lines
-    between CVL elements.
+    Extends :class:`sphinx.directives.code.LiteralInclude`.
+
+    #. Enables including CVL elements by name. To include cvl elements by name use the
+       ``cvlobject`` option and provide a list of CVL elements names, separated by
+       spaces. To include the methods block use ``methods``.
+       Also adds the ``spacing`` option which determines the number of lines between CVL
+       elements.
+    #. Automatically determines the language for certain file extensions using the
+       :attr:`~docsinfra.sphinx_utils.includecvl.CVLInclude.file_suffix_to_language`
+       class variable.
+    #. Changes the default caption to use a code link (``:clink:`` role) to the
+       relevant file. The *default caption* is used whenever there is an empty
+       ``:caption:`` caption option.
     """
 
     option_spec = _extended_option_spec
 
-    # NOTE: This is copied from LiteralInclude.run, with th eonly change being
-    # LiteralIncludeReader changed to CVLIncludeReader
+    file_suffix_to_language = {".spec": "cvl", ".sol": "solidity", ".conf": "json"}
+    """ Default languages to use for these suffixes. """
+
+    def _default_caption(self) -> str:
+        """
+        The default caption is a ``:clink:`` to the file, with name being the
+        file name.
+        """
+        name = Path(self.arguments[0]).parts[-1]
+        return f":clink:`{name}<{self.arguments[0]}>`"
+
+    # NOTE: This is modified from LiteralInclude.run
     def run(self) -> list[Node]:
         document = self.state.document
         if not document.settings.file_insertion_enabled:
@@ -154,8 +175,17 @@ class CVLInclude(LiteralInclude):
 
         try:
             location = self.state_machine.get_source_and_line(self.lineno)
-            rel_filename, filename = self.env.relfn2path(self.arguments[0])
+
+            # Using CodeLinkConfig to get file paths instead of self.env.relfn2path
+            codelink = CodeLinkConfig(self.env)
+            rel_filename, filename = codelink.relfn2path(self.arguments[0])
             self.env.note_dependency(rel_filename)
+
+            # Set language based on extension
+            if ("language" not in self.options) and ("diff" not in self.options):
+                suffix = Path(filename).suffix
+                if suffix in self.file_suffix_to_language:
+                    self.options["language"] = self.file_suffix_to_language[suffix]
 
             reader = CVLIncludeReader(filename, self.options, self.config)
             text, lines = reader.read(location=location)
@@ -187,7 +217,10 @@ class CVLInclude(LiteralInclude):
             extra_args["linenostart"] = reader.lineno_start
 
             if "caption" in self.options:
-                caption = self.options["caption"] or self.arguments[0]
+                caption = self.options["caption"]
+                # Use default caption if caption is empty
+                if caption is None or len(caption) == 0:
+                    caption = self._default_caption()
                 retnode = container_wrapper(self, retnode, caption)
 
             # retnode will be note_implicit_target that is linked from caption and numref.

@@ -86,6 +86,7 @@ add_module_names = False
 # -- codelink_extension configuration ----------------------------------------
 code_path_override = "../../code/"
 link_to_github = True
+path_remappings = {"@voting": "../../code/voting"}
 
 
 # -- todo extension configuration --------------------------------------------
@@ -100,6 +101,13 @@ spelling_word_list_filename = [
     "spelling_wordlist.txt",
     "packages_spelling_wordlist.txt",
 ]
+
+
+# -- graphviz configuration --------------------------------------------------
+# See https://www.sphinx-doc.org/en/master/usage/extensions/graphviz.html
+graphviz_output_format = "svg"  # Supports hover and links
+# For links, add ``target``, e.g. ``target="_blank"``.
+# See https://www.w3.org/TR/html401/types.html#type-frame-target for ``target`` options
 
 
 # -- add CVL syntax highlighting ---------------------------------------------

@@ -239,10 +239,38 @@ Link to a code file using the ``:clink:`` role.
 The link will be either to `GitHub`_ or to local file, depending on the value
 of ``link_to_github`` variable in the :file:`source/conf.py` file.
 
-Absolute paths will be considered as relative to the *absolute code path*
--- see :ref:`code_path_variable`. For complete documentation, see
-:ref:`codelink_extension`.
+.. _paths_resolution:
 
+Path resolution
+"""""""""""""""
+* Relative paths will be considered as relative to the current file (the file containing
+  the ``:clink:`` role).
+* Absolute paths will either:
+
+  #. Be considered as relative to the source folder, i.e. the folder containing
+     the :file:`conf.py` file -- if the :ref:`code_path_variable` has not been used.
+  #. Be considered as relative to the :ref:`code_path_variable`, if it has been set.
+
+* A path starting with ``@`` will be resolved according to the
+  :ref:`path_remappings_dict`. For example, suppose ``path_remappings`` is set
+  in the :file:`conf.py` file as:
+
+  .. literalinclude:: ../../conf.py
+     :language: python
+     :start-at: path_remappings
+     :end-at: path_remappings
+     :caption: conf.py
+
+  Then a link such as:
+
+  .. literalinclude:: ../../features/githublink.rst
+     :language: restructuredtext
+
+  Will be resolved as ``../../code/voting/Voting_solution.spec``
+  *relative to the source directory*.
+
+Syntax
+""""""
 The basic syntax is:
 
 .. tab-set::
@@ -255,6 +283,7 @@ The basic syntax is:
       
          {clink}`Optional name <relative-path-to-code-file>`
          {clink}`Optional name <absolute path relative to absolute code path>`
+         {clink}`Optional name <@remapping-key/path relative to remapping>`
 
    .. tab-item:: reStructuredText (.rst)
       :sync: rstKey
@@ -264,6 +293,7 @@ The basic syntax is:
       
          :clink:`Optional name <relative-path-to-code-file>`
          :clink:`Optional name <absolute path relative to absolute code path>`
+         :clink:`Optional name <@remapping-key/path relative to remapping>`
 
 For example:
 

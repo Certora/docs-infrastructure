@@ -6,7 +6,8 @@
 Codelink extension
 ==================
 This is a Sphinx extension for linking source code files. The resulting links are either
-to local files, or to Github, depending on the configuration.
+to local files, or to Github, depending on the configuration,
+see :ref:`link_to_github_option`. 
 
 The code for this extension is at :mod:`docsinfra.sphinx_utils.codelink_extension`.
 
@@ -25,8 +26,17 @@ automatically by the :ref:`certora_doc_quickstart`.
    :end-before: sphinx.ext.graphviz
    :emphasize-lines: 2
 
+.. role:: python(code)
+   :language: python
+
 Options
 ^^^^^^^
+
+.. _link_to_github_option:
+
+``link_to_github``
+   Boolean, if true the links will be to the Github remote repository (deduced from
+   the repository of the path given in ``:clink:``). Otherwise will link to local files.
 
 .. _code_path_variable:
 
@@ -37,13 +47,21 @@ Options
    This options changes the absolute code path to the one given in ``code_path_override``.
    Note ``code_path_override`` must be relative to the source directory.
 
-``link_to_github``
-   Boolean, if true the links will be to the Github remote repository (deduced from
-   the repository of the path given in ``:clink:``). Otherwise will link to local files.
+.. _path_remappings_dict:
+
+``path_remappings``
+   Optional :python:`dict[str, str]`, where keys are identifiers starting with ``@`` and
+   values are paths relative to source directory ((i.e. the directory containing the
+   config file). Values which are absolute paths will also be considered as relative to
+   the source directory.
+
+   Paths in the ``:clink:`` role using these keys will be resolved using the provided
+   values. See :ref:`paths_resolution` for more information.
 
 
 Usage
 -----
+See :ref:`paths_resolution` for how paths are resolved.
 
 Syntax
 ^^^^^^

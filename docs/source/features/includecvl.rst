@@ -1,3 +1,4 @@
-.. cvlinclude:: /../../code/voting/Voting_solution.spec
-  :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes numVoted
-  :spacing: 1
+.. cvlinclude:: /voting/Voting_solution.spec
+   :cvlobject: onlyLegalVotedChanges sumResultsEqualsTotalVotes numVoted
+   :spacing: 1
+   :caption:
