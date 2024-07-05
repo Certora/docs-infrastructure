@@ -95,10 +95,16 @@ class CodeLinkConfig:
         if filename.startswith("@"):
             # Use remapping
             key = pathobj.parts[0]
-            remap = rel_to_srcdir(self.get_remapping(key))
+            remap = self.get_remapping(key)
             if remap is not None:
                 # Replace the key with the remapped value
+                remap = rel_to_srcdir(remap)
                 filename = str(Path(remap, *pathobj.parts[1:]))
+            else:
+                logger.info(
+                    __("no remap value given for: %s") % key,
+                    location=(self._env.docname),
+                )
         elif pathobj.is_absolute() and self.is_codepath_overridden:
             # Use overridden code path as
             relpathobj = pathobj.relative_to(os.path.sep)
