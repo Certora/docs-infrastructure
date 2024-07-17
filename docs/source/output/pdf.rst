@@ -92,6 +92,8 @@ To create a pdf of only a part of the documentation:
    e.g. to use the standard config file: ``-c docs/source/``
 #. Update the :ref:`code_path_variable` variable to be relative to the new
    source directory, e.g. ``-D code_path=/../../../code/``
+#. Update the values of the :ref:`path_remappings_dict` dictionary to be relative to the
+   new source directory. This must be done in the :clink:`conf.py<../conf.py>` file.
 #. Optionally, modify the title and html title, e.g. ``-D project="Sphinx showcase"``
    and ``-D html_title="Sphinx showcase"``
 
