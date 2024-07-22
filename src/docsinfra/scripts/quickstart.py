@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from pathlib import Path
 from shutil import copyfile
-from typing import Any
+from typing import Any, Optional
 
 from sphinx.cmd.quickstart import DEFAULTS, generate
 
@@ -36,6 +36,23 @@ def get_quickstart_parser() -> ArgumentParser:
         dest="project",
         required=True,
         help="project name",
+    )
+
+    readthedocs = parser.add_argument_group(
+        "Readthedocs setup",
+        "Prepare a setup for use by ReadtheDocs (https://readthedocs.com/)",
+    )
+    readthedocs.add_argument(
+        "--readthedocs-setup",
+        dest="should_setup_readthedocs",
+        action="store_true",
+        help="whether to create a setup for ReadtheDocs, requires '--requirements-path'",
+    )
+    parser.add_argument(
+        "--requirements-path",
+        type=Path,
+        default=None,
+        help="path to requirements.txt file, defaults to PROJECT_DIR/requirements.txt",
     )
 
     versioning = parser.add_argument_group(
@@ -69,7 +86,7 @@ def get_quickstart_parser() -> ArgumentParser:
     )
 
     codeing = parser.add_argument_group(
-        "Code links", "Determine location to search for code and link style."
+        "Code links", "Determine location to search for code, and link style."
     )
     codeing.add_argument(
         "--code",
@@ -99,12 +116,28 @@ def _default_extensions():
     ]
 
 
+class Requirements:
+    """
+    Create a requirements text file for ReadtheDocs setup (via ``pip-compile``).
+    """
+
+    _DEFAULT_REPO_URL = "https://github.com/Certora/docs-infrastructure.git"
+    _DEFAULT_BRANCH_NAME = "master"
+
+    def __init__(self, requirements_path: Path):
+        self._requirements_path = requirements_path
+
+
 @dataclass
 class QuickstartConfig:
     path: Path
     project: str  # Project name
     copyright: str = field(init=False)  # Copyright - determined in __post_init__
     html_theme: str = THEMES.default.name
+
+    # ReadtheDocs setup
+    should_setup_readthedocs: bool = False
+    requirements_path: Optional[Path] = None
 
     # Path to code folder, see
     # https://www.sphinx-doc.org/en/master/extdev/envapi.html#sphinx.environment.BuildEnvironment.relfn2path
@@ -140,12 +173,18 @@ class QuickstartConfig:
         if not code.is_absolute():
             self.code_path = "/" + self.code_path  # TODO: use `os.sep` instead of "/"
 
+        # requirements.txt path
+        if self.requirements_path is None:
+            self.requirements_path = self.path / "requirements.txt"
+
     @classmethod
     def from_args(cls, args: Namespace) -> "QuickstartConfig":
         return cls(
             path=args.path,
             project=args.project,
             html_theme=args.html_theme,
+            should_setup_readthedocs=args.should_setup_readthedocs,
+            requirements_path=args.requirements_path,
             code_path=args.code_path,
             link_to_github=args.link_to_github,
             version=args.version,
