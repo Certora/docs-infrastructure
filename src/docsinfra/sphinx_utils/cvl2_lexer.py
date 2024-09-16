@@ -213,6 +213,8 @@ class CVL2Lexer(RegexLexer):
         "constants": [
             (r'("(\\"|.)*?")', String.Double),
             (r"('(\\'|.)*?')", String.Single),
+            (r'"([^"]*?)\n(.*?)"', String.Double),  # Multi line
+            (r"'([^']*?)\n(.*?)'", String.Single),  # Multi line
             (r"\b0[xX][0-9a-fA-F]+\b", Number.Hex),
             (r"\b\d+\b", Number.Decimal),
         ],
