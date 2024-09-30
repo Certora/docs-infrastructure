@@ -617,41 +617,100 @@ class CVLSpec(SphinxDirective):
     }
 
     def run(self) -> list[Node]:
-        domain = cast(CVLDomain, self.env.get_domain(_domain))
+        # Check everything is correct
+        domain_name, objtype = self.name.split(":", 1)
+        assert domain_name == _domain and objtype == "spec"
 
-        modname = self.arguments[0].strip()
+        # Use canonical spec path
+        specname = canonical_spec_name_from_filepath(
+            self.arguments[0].strip(), self.env
+        )
+
+        # Set the current spec in the env
+        self.env.ref_context[_curspec_key] = specname
+
+        # Adapted from ObjectDescription.run()
+        node = addnodes.desc()
+        node.document = self.state.document
+        source, line = self.get_source_info()
+        # If any options were specified to the directive,
+        # self.state.document.current_line will at this point be set to
+        # None.  To ensure nodes created as part of the signature have a line
+        # number set, set the document's line number correctly.
+        #
+        # Note that we need to subtract one from the line number since
+        # note_source uses 0-based line numbers.
+        if line is not None:
+            line -= 1
+        self.state.document.note_source(source, line)
+        node["domain"] = domain_name
+        # 'desctype' is a backwards compatible attribute
+        node["objtype"] = node["desctype"] = objtype
+
+        # Copy old option names to new ones
+        # xref RemovedInSphinx90Warning
+        # deprecate noindex, noindexentry, and nocontentsentry in Sphinx 9.0
+        if "no-index" not in self.options and "noindex" in self.options:
+            self.options["no-index"] = self.options["noindex"]
+        if "no-index-entry" not in self.options and "noindexentry" in self.options:
+            self.options["no-index-entry"] = self.options["noindexentry"]
+        if (
+            "no-contents-entry" not in self.options
+            and "nocontentsentry" in self.options
+        ):
+            self.options["no-contents-entry"] = self.options["nocontentsentry"]
+
         noindex = "noindex" in self.options
-        self.env.ref_context[_curspec_key] = modname
-
-        content_node: Element = nodes.section()
-        # necessary so that the child nodes get the right source/line set
-        content_node.document = self.state.document
-
-        # Add spec name as title
-        self.content.insert(
-            0, StringList([f"Spec {modname}", "-" * (len(modname) + len("Spec "))])
+        node["no-index"] = node["noindex"] = noindex
+        node["no-contents-entry"] = node["nocontentsentry"] = (
+            "nocontentsentry" in self.options
         )
-        nested_parse_with_titles(
-            self.state, self.content, content_node, self.content_offset
+        # End copy from ObjectDescription.run()
+
+        signode = addnodes.desc_signature(objtype, "")
+        self.set_source_info(signode)
+        node.append(signode)
+
+        fullname = to_refname(objtype, specname, None)
+        signode["module"] = specname
+        signode["fullname"] = fullname
+
+        # Add "spec " to the description
+        display_prefix = [
+            addnodes.desc_sig_keyword(objtype, objtype),
+            addnodes.desc_sig_space(),
+        ]
+        signode += addnodes.desc_annotation("", "", *display_prefix)
+
+        # Add spec file name to the description
+        signode += addnodes.desc_name(
+            "", "", addnodes.desc_sig_name(specname, specname)
         )
 
-        ret: list[Node] = []
+        # Parse content
+        content_children = self.parse_content_to_nodes(allow_section_headings=True)
+        content_node = addnodes.desc_content("", *content_children)
+        node.append(content_node)
+
+        # Create reference target
+        node_id = make_id(self.env, self.state.document, "", fullname)
+        target = nodes.target("", "", ids=[node_id], ismod=True)
+        self.set_source_info(target)
+        signode["ids"].append(node_id)
+        self.state.document.note_explicit_target(target)
+
+        # Notify domain
+        domain = cast(CVLDomain, self.env.get_domain(_domain))
+        domain.note_object(fullname, "spec", node_id, location=target)
+
+        ret = [node]
+
+        # Add to index
         if not noindex:
-            # Note spec to the domain
-            node_id = make_id(self.env, self.state.document, SPECFILE, modname)
-            target = nodes.target("", "", ids=[node_id], ismod=True)
-            self.set_source_info(target)
-            self.state.document.note_explicit_target(target)
+            indextext = f"{_(SPECFILE)}; {specname}"
+            indexnode = addnodes.index(entries=[("pair", indextext, node_id, "", None)])
+            ret.insert(0, indexnode)
 
-            domain.note_object(modname, SPECFILE, node_id, location=target)
-
-            # the platform and synopsis aren't printed; in fact, they are only
-            # used in the modindex currently
-            ret.append(target)
-            indextext = f"{_(SPECFILE)}; {modname}"
-            inode = addnodes.index(entries=[("pair", indextext, node_id, "", None)])
-            ret.append(inode)
-        ret.extend(content_node.children)
         return ret
 
     def make_old_id(self, name: str) -> str:
@@ -719,10 +778,14 @@ class CVLDomain(Domain):
         self.objects[fullname] = CVLObjectEntry(self.env.docname, node_id, objtype)
 
         if objtype == "spec":
-            spec_entry = self.specs.setdefault(fullname, CVLSpecEntry(True, []))
-            spec_entry.has_spec_object = True
+            spec_entry = self.specs.get(fullname)
+            if spec_entry is None:
+                self.specs[fullname] = CVLSpecEntry(True, [])
+            else:
+                self.specs[fullname] = CVLSpecEntry(True, spec_entry.rules_refnames)
 
-    def note_spec_obj(self, spec_refname: str, refname: str):
+    def note_spec_obj(self, spec_name: str, refname: str):
+        spec_refname = to_refname("spec", spec_name, None)
         spec_entry = self.specs.setdefault(spec_refname, CVLSpecEntry(False, []))
         if refname not in spec_entry.rules_refnames:
             spec_entry.rules_refnames.append(refname)
@@ -911,10 +974,13 @@ class CVLDomain(Domain):
                 _, _, dispname = spec_and_rulename_from_ref(refname, typ)
                 yield refname, dispname, typ, docname, node_id, 1
 
-    def get_specname(self, refname: str) -> Optional[str]:
+    def get_specname(self, refname: str, kind: Optional[str] = None) -> Optional[str]:
         """
         Returns the canonical spec name of the given object, if exists.
         """
+        if kind is not None:
+            return spec_and_rulename_from_ref(refname, kind)[1]
+
         obj = self.objects.get(refname)
         if obj is None:
             return None

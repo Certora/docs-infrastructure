@@ -126,11 +126,12 @@ class SpecIndex(Index):
         }
 
         content = {}
-        for spec_name, spec_entry in specs:
+        for spec_refname, spec_entry in specs:
+            spec_name = self.domain.get_specname(spec_refname, kind="spec")
             letter = spec_name[0].lower() if spec_name[0].isalpha() else spec_name[1]
             letter_content = content.setdefault(letter, [])
             if spec_entry.has_spec_object:
-                dispname, docname, anchor, typ = objects[spec_name]
+                dispname, docname, anchor, typ = objects[spec_refname]
                 # TODO: dispname unused
                 letter_content.append(
                     (

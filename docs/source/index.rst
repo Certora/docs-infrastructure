@@ -15,6 +15,10 @@ Features
 CVL domain
 ^^^^^^^^^^
 
+.. cvl:spec:: @voting/Voting_solution.spec
+
+   An example of describing a spec file.
+
 .. cvl:rule:: myRule(uint256 amount, address from)
    :spec: @voting/Voting_solution.spec
 
