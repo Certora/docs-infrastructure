@@ -4,7 +4,7 @@ A Sphinx extension for linking source code files, either locally or to Github.
 import os
 import re
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 from urllib.parse import unquote, urlparse
 
 from docutils import nodes
@@ -112,6 +112,47 @@ class CodeLinkConfig:
             filename = str(Path(override) / relpathobj)
 
         return self._env.relfn2path(filename)
+
+    def path2relfn(self, filepath: Optional[Union[str, Path]]) -> Path:
+        """
+        The inverse function of ``relfn2path`` above.
+        """
+        path = Path(filepath)
+        if str(filepath).startswith("@"):
+            return Path(filepath)
+
+        path_rel, _ = self.relfn2path(str(filepath))
+        path_rel = Path(path_rel)
+
+        # Try via remappings first
+        remaps = []
+        for key in self._path_remappings:
+            remap, _ = self.relfn2path(key)
+            try:
+                rel = path_rel.relative_to(remap)
+                remaps.append(Path(key) / rel)
+            except ValueError:
+                # Not relative to this remap
+                continue
+
+        if len(remaps) > 0:
+            # Use the shortest
+            return min(remaps, key=lambda p: len(str(p)))
+
+        if path.is_absolute():
+            # Already relative to code path
+            return path
+
+        # Relative to code
+        if self.is_codepath_overridden:
+            codepath, _ = self.relfn2path("./")
+            try:
+                return path.relative_to(Path(codepath))
+            except ValueError:
+                # Not relative to code path
+                pass
+
+        return path
 
     def get_abs_path(self, path: str) -> Path:
         """

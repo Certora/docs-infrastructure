@@ -12,6 +12,41 @@ Welcome to Certora Documents Infrastructure's documentation!
 Features
 --------
 
+CVL domain
+^^^^^^^^^^
+
+.. cvl:rule:: myRule(uint256 amount, address from)
+   :spec: @voting/Voting_solution.spec
+
+   :title: My special rule
+   :status: Verified
+   :param amount: The amount
+   :param from: the one from which
+   :property: someprop
+
+   Free text.
+
+   We can also reference other rules, e.g. :cvl:invariant:`anInvariant`.
+   Similarly full name as :cvl:rule:`@voting/Voting_solution.spec:anyoneCanVote`.
+   Similarly :cvl:rule:`~../../code/voting/Voting_solution.spec:anyoneCanVote`.
+   Or even :cvl:invariant:`see this invariant<anInvariant>`.
+
+----
+
+.. cvl:invariant:: anInvariant(address user)
+
+   :title: some invariant
+   :status: Violated
+   :param user: The user
+
+----
+
+.. cvl:rule:: anyoneCanVote(address voter, bool isInFavor)
+   :spec: /voting/Voting_solution.spec
+
+   :title: Anyone can vote once
+   :status: Verified
+
 Include CVL code
 ^^^^^^^^^^^^^^^^
 Easily include CVL code from spec files.
@@ -93,13 +128,18 @@ Contents
    :hidden:
 
    genindex
+   cvl-ruleindex
+   cvl-specindex
+   cvl-propertyindex
 
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
+* :ref:`cvl-ruleindex`
+* :ref:`cvl-specindex`
+* :ref:`cvl-propertyindex`
 * :ref:`search`
 
 

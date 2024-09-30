@@ -23,6 +23,7 @@ tags.add(TAGS.is_dev_build)  # noqa: F821
 extensions = [
     "docsinfra.sphinx_utils.codelink_extension",
     "docsinfra.sphinx_utils.includecvl",
+    "docsinfra.sphinx_utils.cvl_domain",
     "sphinx.ext.graphviz",
     "sphinx.ext.todo",
     "sphinxcontrib.video",  # See https://sphinxcontrib-video.readthedocs.io/en/latest/
