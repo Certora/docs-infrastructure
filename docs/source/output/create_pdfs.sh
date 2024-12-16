@@ -6,7 +6,7 @@ sphinx-build -M latexpdf docs/source/ docs/build/fullpdf \
   -D latex_theme=howto \
   -t is_dev_build
 
-# Create pdf of one part
+# Create pdf of one part - must modify path_remappings in conf.py accordingly
 sphinx-build -M latexpdf docs/source/showcase docs/build/partpdf \
   -c docs/source/ \
   -D code_path_override=../../../code \

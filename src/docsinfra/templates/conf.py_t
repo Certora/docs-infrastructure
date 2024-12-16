@@ -73,8 +73,8 @@ if html_theme == "furo":
         "light_logo": "Certora_Logo_Black.svg",
         "dark_logo": "Certora_Logo_White.svg",
         # Disable the edit button, see:
-        # https://pradyunsg.me/furo/customisation/edit-button/#disabling-on-read-the-docs
-        "top_of_page_button": None,
+        # https://pradyunsg.me/furo/customisation/top-of-page-buttons/#disabling-on-read-the-docs
+        "top_of_page_buttons": [],
     }
 else:
     html_logo = "_static/Certora_Logo_Black.svg"
@@ -96,6 +96,14 @@ rst_prolog = """
 # -- codelink_extension configuration ----------------------------------------
 code_path_override = {{ code_path | repr }}
 link_to_github = {{ link_to_github | repr }}
+
+# Use path_remappings for convinient shortcuts to paths, for example:
+# path_remappings = {
+#     "@reward-streams": "../../euler-reward-streams",
+#     "@reward-streams-specs": "../../euler-reward-streams/certora/specs/",
+#     "@reward-streams-confs": "../../euler-reward-streams/certora/conf/",
+#     "@reward-streams-harness": "../../euler-reward-streams/certora/harness/",
+# }
 
 
 {% if 'sphinx.ext.todo' in extensions -%}

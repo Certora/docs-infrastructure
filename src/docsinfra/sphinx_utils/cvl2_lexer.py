@@ -82,12 +82,14 @@ class CVL2Lexer(RegexLexer):
 
     summaries = (
         r"\b(ALWAYS|CONSTANT|PER_CALLEE_CONSTANT|NONDET|HAVOC_ECF|HAVOC_ALL|"
-        r"DISPATCHER|AUTO)\b"
+        r"DISPATCHER|DISPATCH|AUTO)\b"
     )
     summaries_extra = r"\b(UNRESOLVED|ALL|DELETE)\b"
-    methods_block_keywords = r"\b(external|internal|returns|envfree|expect)\b"
+    methods_block_keywords = (
+        r"\b(external|internal|returns|optional|envfree|expect|default)\b"
+    )
 
-    hook_special_keywords = r"\b(Sstore|Sload|STORAGE|KEY)\b"
+    hook_special_keywords = r"\b(Sstore|Sload|STORAGE|KEY|INDEX)\b"
 
     solidity_keywords = (
         "calldata",
@@ -105,7 +107,7 @@ class CVL2Lexer(RegexLexer):
         "true",
     )
     cvl_imports = ("as", "import", "use", "using")
-    cvl_builtins = ("currentContract", "lastReverted", "lastStorage")
+    cvl_builtins = ("currentContract", "lastReverted", "lastStorage", "selector")
     cvl_assertions = ("assert", "satisfy")
     cvl_keywords = (
         "assuming",
@@ -211,6 +213,8 @@ class CVL2Lexer(RegexLexer):
         "constants": [
             (r'("(\\"|.)*?")', String.Double),
             (r"('(\\'|.)*?')", String.Single),
+            (r'"([^"]*?)\n(.*?)"', String.Double),  # Multi line
+            (r"'([^']*?)\n(.*?)'", String.Single),  # Multi line
             (r"\b0[xX][0-9a-fA-F]+\b", Number.Hex),
             (r"\b\d+\b", Number.Decimal),
         ],
@@ -263,7 +267,7 @@ class CVL2Lexer(RegexLexer):
             ),
             # Exit methods block
             (r"\}", Punctuation, "#pop"),
-            # Msic
+            # Misc
             include("constants"),
             include("defaults"),  # Lowest priority
         ],

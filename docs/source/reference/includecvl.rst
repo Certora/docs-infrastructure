@@ -39,11 +39,13 @@ Syntax
 
    .. cvlinclude:: <spec-file-path>
       :cvlobject: <element-id> [<element-id> ...]
-      :spacing: 2
+      :spacing: <spacing-number>
+      :language: <language-name>
+      :caption: <caption>
 
 ``spec-file-path``
-   Path to spec file. If relative should be relative to the current file.
-   If absolute, it will be considered as relative to the ``/source/`` directory.
+   The path to the file containing the code snippet. The path is resolved according
+   to the same :ref:`paths_resolution` used for the ``:clink:`` role.
 
 ``:cvlobject:``
    Ids of elements to include, separated by spaces.
@@ -54,7 +56,18 @@ Syntax
    documentation in addition to their source code.
 
 ``:spacing:``
-   The number of lines between two elements, defaults to one.
+   The number of lines between two CVL elements. Applicable only to spec files and
+   directives using the ``:cvlobject:`` option. Defaults to one.
+
+``:language:``
+   Optional, the name of computer language for syntax highlighting.
+   For files with suffixes ``.spec``, ``.sol`` or ``.conf`` it is determined
+   automatically, see
+   :attr:`~docsinfra.sphinx_utils.includecvl.CVLInclude.file_suffix_to_language`.
+
+``:caption:``
+   Caption to use. If an empty caption is provided, the directive will use the default
+   caption, which is a code link to the file.
 
 In addition, this extension support all the options of the `literalinclude directive`_,
 such as ``:caption:`` and ``:emphasize-lines:``.
@@ -94,9 +107,9 @@ Simple Example
 .. code-block:: restructuredtext
 
    .. cvlinclude:: /../../code/voting/Voting_solution.spec
-      :cvlobject: methods onlyLegalVotedChanges
+      :cvlobject: methods onlyLegalVotedChanges sumResultsEqualsTotalVotes
       :spacing: 2
-      :caption: Voting rules
+      :caption: :clink:`Voting rules</voting/Voting_solution.spec>`
       :emphasize-lines: 2
 
 .. card::
@@ -105,9 +118,9 @@ Simple Example
    ^^^^^^^^^^^^
 
    .. cvlinclude:: /../../code/voting/Voting_solution.spec
-      :cvlobject: methods onlyLegalVotedChanges
+      :cvlobject: methods onlyLegalVotedChanges sumResultsEqualsTotalVotes
       :spacing: 2
-      :caption: Voting rules
+      :caption: :clink:`Voting rules</voting/Voting_solution.spec>`
       :emphasize-lines: 2
 
 

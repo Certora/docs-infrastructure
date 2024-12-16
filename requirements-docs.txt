@@ -1,0 +1,3 @@
+# addition requirements to be used by pip-compile for generating the docs requirements
+furo~=2024.5
+myst-parser~=3.0.1

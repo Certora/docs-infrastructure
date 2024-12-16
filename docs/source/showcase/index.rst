@@ -6,12 +6,13 @@
 Sphinx tutorial and showcase
 ****************************
 
-This chapter describes the most useful Sphinx directives and roles.
+This chapter describes the most useful Sphinx directives and roles. There are examples
+for both markdown and reStructuredText files.
 
-If you're markdown files (:file:`.md`) -- these use the `MyST`_ package, and the
-MyST examples are what you need.
-Those using reStructuredText filed (:file:`.rst`) should refer to the reStructuredText
-examples.
+* If you're using *markdown* files (:file:`.md`), these use the `MyST`_ package, and the
+  MyST examples are what you need.
+* Those using *reStructuredText* files (:file:`.rst`) should refer to the reStructuredText
+  examples.
 
 For additional information see:
 

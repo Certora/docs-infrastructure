@@ -65,7 +65,7 @@ Link to Github
 CVL syntax highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-.. cvlinclude:: /../../code/voting/Voting_solution.spec
+.. cvlinclude:: /voting/Voting_solution.spec
    :cvlobject: methods
 
 Create pdf versions
